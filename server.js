@@ -550,28 +550,17 @@ app.post("/api/orders", (req, res) => {
   res.json({ ok: true, id: order.id, total: order.total });
 });
 
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 function sendOrderEmail(order) {
-  const host = process.env.SMTP_HOST || "smtp.ionos.com";
-  const port = Number(process.env.SMTP_PORT) || 587;
-  const user = process.env.SMTP_USER || "contact@w6paris.com";
-  const pass = process.env.SMTP_PASS;
-
-  if (!pass) {
-    console.log("[Email] SMTP_PASS not set, skipping email.");
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.log("[Email] RESEND_API_KEY not set, skipping email.");
     return;
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
-    tls: {
-      rejectUnauthorized: false
-    }
-  });
+  const resend = new Resend(apiKey);
+  const from = "W6 Paris <contact@w6paris.com>";
 
   const itemsHtml = order.items.map(i => `<li>${i.qty}x ${i.name} ${i.options ? `(${i.options})` : ""} — ${i.line.toFixed(2)}€</li>`).join("");
 
@@ -599,16 +588,16 @@ function sendOrderEmail(order) {
     </div>
   `;
 
-  transporter.sendMail({
-    from: `"W6 Paris" <${user}>`,
+  resend.emails.send({
+    from,
     to: order.customer.email,
     subject: `Confirmation de commande ${order.id} — W6 Paris`,
     html: customerHtml
   }).catch(err => console.error("[Email] Error sending customer email:", err));
 
-  transporter.sendMail({
-    from: `"W6 Paris Bot" <${user}>`,
-    to: user,
+  resend.emails.send({
+    from,
+    to: "contact@w6paris.com",
     subject: `[Nouvelle Commande] ${order.id} — ${order.total.toFixed(2)}€`,
     html: adminHtml
   }).catch(err => console.error("[Email] Error sending admin email:", err));
