@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commande — W6 Paris</title>
+<meta name="description" content="Finalisez votre commande W6 Paris — diffuseurs et fragrances d'intérieur.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/checkout.html">
+</head>
+<body data-page="checkout">
+
+<main id="main">
+  <div class="container">
+
+    <div class="page-hero">
+      <span class="eyebrow">W6 Paris</span>
+      <h1 data-i18n="checkout.title">Votre commande</h1>
+    </div>
+
+    <!-- ORDER FORM -->
+    <div class="checkout-layout" id="coLayout">
+
+      <div class="checkout-summary">
+        <h2 data-i18n="checkout.summaryTitle">Récapitulatif</h2>
+        <div id="coItems"></div>
+        <div class="co-total">
+          <span data-i18n="cart.subtotal">Sous-total</span>
+          <strong id="coSubtotal"></strong>
+        </div>
+        <div class="co-total" id="coShipRow">
+          <span data-i18n="checkout.shipping">Livraison</span>
+          <strong id="coShipping"></strong>
+        </div>
+        <div class="co-total" id="coDiscRow" style="display:none;">
+          <span data-i18n="checkout.discount">Réduction</span>
+          <strong id="coDiscount"></strong>
+        </div>
+        <p class="co-freeship" id="coFreeShip" style="display:none;" data-i18n="checkout.freeShip">Livraison offerte !</p>
+        <div class="co-total co-total-grand">
+          <span data-i18n="checkout.grandTotal">Total</span>
+          <strong id="coTotal"></strong>
+        </div>
+        <div class="co-paynote" data-i18n="checkout.note">Paiement convenu séparément.</div>
+      </div>
+
+      <div class="checkout-form">
+        <h2 data-i18n="checkout.formTitle">Vos coordonnées</h2>
+        <form id="coForm" novalidate>
+          <div class="field">
+            <label data-i18n="checkout.name">Nom complet *</label>
+            <input type="text" id="coName" required>
+          </div>
+          <div class="field">
+            <label data-i18n="checkout.email">E-mail *</label>
+            <input type="email" id="coEmail" required>
+          </div>
+          <div class="field">
+            <label data-i18n="checkout.phone">Téléphone</label>
+            <input type="tel" id="coPhone">
+          </div>
+
+          <div class="field">
+            <label data-i18n="product.fulfillmentTitle">Mode de réception</label>
+            <div class="option-list" id="coFulfillment">
+              <button type="button" class="active" data-full="delivery" data-i18n="product.fulfillmentDelivery">Livraison à domicile</button>
+              <button type="button" data-full="pickup" data-i18n="product.fulfillmentPickup">Retrait en boutique</button>
+            </div>
+          </div>
+
+          <div id="coDelivery">
+            <div class="field">
+              <label data-i18n="checkout.deliveryMethodTitle">Méthode de livraison</label>
+              <div class="option-list" id="coMethod">
+                <button type="button" class="active" data-method="relay" data-i18n="checkout.deliveryRelay">Point Relais</button>
+                <button type="button" data-method="home" data-i18n="checkout.deliveryHome">À domicile</button>
+              </div>
+              <p class="notes" id="coMethodFee" style="margin-top:6px;"></p>
+            </div>
+            <div class="field">
+              <label data-i18n="checkout.address">Adresse *</label>
+              <input type="text" id="coAddr" required>
+            </div>
+            <div class="co-row">
+              <div class="field">
+                <label data-i18n="checkout.zip">Code postal *</label>
+                <input type="text" id="coZip" required>
+              </div>
+              <div class="field">
+                <label data-i18n="checkout.city">Ville *</label>
+                <input type="text" id="coCity" required>
+              </div>
+            </div>
+<div class="field">
+            <label data-i18n="checkout.country">Pays</label>
+            <input type="text" id="coCountry" value="France">
+          </div>
+          <div class="field">
+            <label data-i18n="checkout.promoTitle">Code promo</label>
+            <div class="co-promo-row">
+              <input type="text" id="coPromo" placeholder="WELCOME10" style="text-transform:uppercase;">
+              <button type="button" class="btn" id="coPromoBtn" data-i18n="checkout.promoApply">Appliquer</button>
+            </div>
+            <p class="notes" id="coPromoMsg" style="display:none;"></p>
+          </div>
+          </div>
+
+          <div id="coPickup" style="display:none;">
+            <div class="co-row">
+              <div class="field">
+                <label data-i18n="product.pickupDate">Date de retrait *</label>
+                <input type="date" id="coDate" required>
+              </div>
+              <div class="field">
+                <label data-i18n="product.pickupTime">Heure de retrait *</label>
+                <input type="time" id="coTime" required>
+              </div>
+            </div>
+            <p class="notes" data-i18n="product.storeAddress">12 Rue Boulard, 75014 Paris</p>
+          </div>
+
+          <p class="co-error" id="coError" style="display:none;"></p>
+
+          <button type="submit" class="btn btn-solid add-to-cart" data-i18n="checkout.submit">Confirmer la commande</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- CONFIRMATION -->
+    <div class="checkout-success" id="coSuccess" style="display:none;">
+      <h2 data-i18n="checkout.successTitle">Merci !</h2>
+      <p data-i18n="checkout.successP1">Votre commande a bien été enregistrée.</p>
+      <p class="co-orderid"><strong data-i18n="checkout.orderNo">N° de commande</strong><br><span id="coOrderId"></span></p>
+      <p data-i18n="checkout.successP2">Nous vous contacterons pour organiser la livraison ou le retrait.</p>
+      <p><a class="btn" href="tracking.html" data-i18n="checkout.trackOrder">Suivre ma commande</a></p>
+      <a class="btn" href="index.html" data-i18n="checkout.home">Retour à l'accueil</a>
+    </div>
+
+    <!-- EMPTY -->
+    <div class="checkout-empty" id="coEmpty" style="display:none;">
+      <h2 data-i18n="checkout.empty">Votre panier est vide.</h2>
+      <a class="btn" href="shop.html" data-i18n="checkout.back">Retour à la boutique</a>
+    </div>
+
+  </div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script src="js/checkout.js"></script>
+</body>
+</html>

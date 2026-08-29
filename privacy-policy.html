@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Politique de confidentialité — W6 Paris</title>
+<meta name="description" content="Politique de confidentialité de la boutique W6 Paris.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/privacy-policy.html">
+</head>
+<body data-page="privacy">
+
+<main id="main">
+  <div class="page-hero container">
+    <h1 data-i18n="policy.privacyTitle">Politique de confidentialité</h1>
+    <p data-i18n="policy.privacySub">Comment nous protégeons vos données.</p>
+  </div>
+
+  <section class="container prose">
+    <div id="privacyContent"></div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+  var PRIVACY = {
+    fr: [
+      ["Collecte des données", "Nous collectons les données personnelles que vous nous communiquez lors d'une commande ou d'une inscription à la newsletter : nom, adresse e-mail, adresse de livraison et informations de paiement. Ces données sont utilisées uniquement pour le traitement de votre commande et notre relation client."],
+      ["Utilisation des données", "Vos données nous permettent de : traiter et livrer vos commandes, vous informer de l'avancement de votre commande, vous envoyer notre newsletter si vous y avez consenti, et améliorer nos services."],
+      ["Partage des données", "Nous ne vendons jamais vos données personnelles. Elles peuvent être partagées avec nos partenaires de paiement et de livraison, strictement dans le cadre du traitement de votre commande."],
+      ["Cookies", "Notre site utilise des cookies nécessaires à son fonctionnement (panier, préférences de langue) ainsi que des cookies de mesure d'audience pour améliorer votre expérience. Vous pouvez configurer votre navigateur pour refuser les cookies."],
+      ["Sécurité", "Vos données sont stockées sur des serveurs sécurisés et protégées par des mesures techniques et organisationnelles appropriées."],
+      ["Vos droits", "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et de portabilité de vos données, ainsi que d'un droit d'opposition. Pour exercer ces droits, écrivez-nous à contact@w6paris.com."],
+      ["Contact", "Pour toute question relative à la protection de vos données, contactez-nous à contact@w6paris.com."]
+    ],
+    en: [
+      ["Data collection", "We collect the personal data you provide when placing an order or subscribing to our newsletter: name, email address, delivery address and payment information. This data is used solely to process your order and manage our customer relationship."],
+      ["Use of data", "Your data allows us to: process and deliver your orders, keep you informed of your order's progress, send you our newsletter if you have consented, and improve our services."],
+      ["Data sharing", "We never sell your personal data. It may be shared with our payment and delivery partners, strictly for the purpose of processing your order."],
+      ["Cookies", "Our site uses cookies required for its operation (cart, language preferences) as well as audience measurement cookies to improve your experience. You can configure your browser to refuse cookies."],
+      ["Security", "Your data is stored on secure servers and protected by appropriate technical and organisational measures."],
+      ["Your rights", "In accordance with the GDPR, you have a right of access, rectification, erasure and portability of your data, as well as a right to object. To exercise these rights, write to us at contact@w6paris.com."],
+      ["Contact", "For any question regarding the protection of your data, contact us at contact@w6paris.com."]
+    ]
+  };
+  window.initPage = function () {
+    document.getElementById("privacyContent").innerHTML = PRIVACY[LANG]
+      .map(function (s) { return "<h2>" + s[0] + "</h2><p>" + s[1] + "</p>"; })
+      .join("");
+  };
+</script>
+</body>
+</html>

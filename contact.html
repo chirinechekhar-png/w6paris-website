@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — W6 Paris</title>
+<meta name="description" content="Contactez W6 Paris : une question, un conseil ou une demande particulière sur nos diffuseurs et fragrances.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/contact.html">
+</head>
+<body data-page="contact">
+
+<main id="main">
+  <div class="page-hero container">
+    <h1 data-i18n="contact.title">Contact</h1>
+    <p data-i18n="contact.sub">Une question, un conseil ou une demande particulière ? N'hésitez pas à nous écrire.</p>
+  </div>
+
+  <section class="container" style="padding-bottom:96px;">
+    <div class="contact-grid">
+      <div>
+        <h2 style="font-size:28px;margin-bottom:22px;" data-i18n="contact.formTitle">Envoyez-nous un message</h2>
+        <form id="contactForm">
+          <div class="form-row">
+            <label for="cName" data-i18n="contact.name">Nom</label>
+            <input type="text" id="cName" name="name" required>
+          </div>
+          <div class="form-row">
+            <label for="cEmail" data-i18n="contact.email">E-mail</label>
+            <input type="email" id="cEmail" name="email" required>
+          </div>
+          <div class="form-row">
+            <label for="cSubject" data-i18n="contact.subject">Sujet</label>
+            <select id="cSubject" name="subject"></select>
+          </div>
+          <div class="form-row">
+            <label for="cMessage" data-i18n="contact.message">Message</label>
+            <textarea id="cMessage" name="message" rows="5" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-solid" data-i18n="contact.send">Envoyer</button>
+          <p class="form-success" id="contactSuccess"></p>
+        </form>
+      </div>
+      <div>
+        <h2 style="font-size:28px;margin-bottom:22px;" data-i18n="contact.infoTitle">Nous joindre</h2>
+        <p style="color:var(--muted);margin-bottom:24px;" data-i18n="contact.infoP">Notre équipe vous répond du lundi au vendredi, de 9h à 18h.</p>
+        <p style="margin-bottom:10px;"><strong data-i18n="contact.emailLabel">E-mail</strong><br><a href="mailto:contact@w6paris.com" style="color:var(--accent);">contact@w6paris.com</a></p>
+        <p style="margin-bottom:10px;"><strong data-i18n="contact.addressLabel">Boutique</strong><br><span data-i18n="home.storeAddress">12 Rue Boulard, 75014 Paris</span></p>
+        <p style="color:var(--muted);margin-bottom:10px;font-size:14px;" data-i18n="contact.storeP">Notre boutique-showroom vous accueille au 12 Rue Boulard, 75014 Paris. Venez voir les diffuseurs en action et sentir les fragrances.</p>
+        <p style="color:var(--muted);margin-bottom:10px;font-size:14px;" data-i18n="contact.storeHours">Du lundi au samedi, 10h à 19h</p>
+        <p><strong data-i18n="contact.instagramLabel">Instagram</strong><br><a href="https://www.instagram.com/w6paris/" target="_blank" rel="noopener" style="color:var(--accent);">@w6paris</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+  window.initPage = function () {
+    var sel = document.getElementById("cSubject");
+    t("contact.subjects").forEach(function (s) {
+      var opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      sel.appendChild(opt);
+    });
+    document.getElementById("contactForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var ok = document.getElementById("contactSuccess");
+      ok.textContent = t("contact.success");
+      ok.style.display = "block";
+      this.reset();
+      setTimeout(function () { ok.style.display = "none"; }, 6000);
+    });
+  };
+</script>
+</body>
+</html>

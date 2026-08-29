@@ -1,0 +1,407 @@
+{
+  "carrier": "Mondial Relay",
+  "freeFrom": 150,
+  "freeByCountry": {
+    "fr": [
+      "diffuser",
+      "bundle"
+    ],
+    "de": [
+      "diffuser",
+      "bundle"
+    ]
+  },
+  "zones": {
+    "fr": {
+      "label": "France",
+      "relay": [
+        {
+          "maxKg": 0.25,
+          "price": 4.15
+        },
+        {
+          "maxKg": 0.5,
+          "price": 4.15
+        },
+        {
+          "maxKg": 1,
+          "price": 5.99
+        },
+        {
+          "maxKg": 2,
+          "price": 7.99
+        },
+        {
+          "maxKg": 3,
+          "price": 7.99
+        },
+        {
+          "maxKg": 4,
+          "price": 9.99
+        },
+        {
+          "maxKg": 5,
+          "price": 15.99
+        },
+        {
+          "maxKg": 7,
+          "price": 15.99
+        },
+        {
+          "maxKg": 10,
+          "price": 15.99
+        },
+        {
+          "maxKg": 15,
+          "price": 25.99
+        },
+        {
+          "maxKg": 25,
+          "price": 25.99
+        }
+      ],
+      "home": [
+        {
+          "maxKg": 0.25,
+          "price": 4.99
+        },
+        {
+          "maxKg": 0.5,
+          "price": 7.49
+        },
+        {
+          "maxKg": 1,
+          "price": 9.49
+        },
+        {
+          "maxKg": 2,
+          "price": 10.99
+        },
+        {
+          "maxKg": 3,
+          "price": 16.39
+        },
+        {
+          "maxKg": 4,
+          "price": 16.39
+        },
+        {
+          "maxKg": 5,
+          "price": 16.39
+        },
+        {
+          "maxKg": 7,
+          "price": 24.99
+        },
+        {
+          "maxKg": 10,
+          "price": 24.99
+        },
+        {
+          "maxKg": 15,
+          "price": 31.49
+        },
+        {
+          "maxKg": 25,
+          "price": 42.99
+        }
+      ]
+    },
+    "be": {
+      "label": "Belgique / Luxembourg",
+      "relay": [
+        {
+          "maxKg": 0.5,
+          "price": 4.6
+        },
+        {
+          "maxKg": 1,
+          "price": 6.6
+        },
+        {
+          "maxKg": 2,
+          "price": 8.3
+        },
+        {
+          "maxKg": 5,
+          "price": 12
+        },
+        {
+          "maxKg": 10,
+          "price": 16
+        },
+        {
+          "maxKg": 20,
+          "price": 22
+        }
+      ],
+      "home": [
+        {
+          "maxKg": 0.5,
+          "price": 6.6
+        },
+        {
+          "maxKg": 1,
+          "price": 8.6
+        },
+        {
+          "maxKg": 2,
+          "price": 10.9
+        },
+        {
+          "maxKg": 5,
+          "price": 15
+        },
+        {
+          "maxKg": 10,
+          "price": 19
+        },
+        {
+          "maxKg": 20,
+          "price": 25
+        }
+      ]
+    },
+    "nl": {
+      "label": "Pays-Bas",
+      "relay": [
+        {
+          "maxKg": 0.5,
+          "price": 4.6
+        },
+        {
+          "maxKg": 1,
+          "price": 6.6
+        },
+        {
+          "maxKg": 2,
+          "price": 8.3
+        },
+        {
+          "maxKg": 5,
+          "price": 12
+        },
+        {
+          "maxKg": 10,
+          "price": 16
+        },
+        {
+          "maxKg": 20,
+          "price": 22
+        }
+      ],
+      "home": [
+        {
+          "maxKg": 0.5,
+          "price": 6.6
+        },
+        {
+          "maxKg": 1,
+          "price": 8.6
+        },
+        {
+          "maxKg": 2,
+          "price": 10.9
+        },
+        {
+          "maxKg": 5,
+          "price": 15
+        },
+        {
+          "maxKg": 10,
+          "price": 19
+        },
+        {
+          "maxKg": 20,
+          "price": 25
+        }
+      ]
+    },
+    "es": {
+      "label": "Espagne / Portugal / Italie",
+      "relay": [
+        {
+          "maxKg": 0.5,
+          "price": 6.6
+        },
+        {
+          "maxKg": 1,
+          "price": 9.5
+        },
+        {
+          "maxKg": 2,
+          "price": 10.6
+        },
+        {
+          "maxKg": 5,
+          "price": 14
+        },
+        {
+          "maxKg": 10,
+          "price": 18
+        },
+        {
+          "maxKg": 20,
+          "price": 24
+        }
+      ],
+      "home": [
+        {
+          "maxKg": 0.5,
+          "price": 8.6
+        },
+        {
+          "maxKg": 1,
+          "price": 11.5
+        },
+        {
+          "maxKg": 2,
+          "price": 12.9
+        },
+        {
+          "maxKg": 5,
+          "price": 17
+        },
+        {
+          "maxKg": 10,
+          "price": 21
+        },
+        {
+          "maxKg": 20,
+          "price": 27
+        }
+      ]
+    },
+    "pl": {
+      "label": "Pologne",
+      "relay": [
+        {
+          "maxKg": 0.5,
+          "price": 7.2
+        },
+        {
+          "maxKg": 1,
+          "price": 10.4
+        },
+        {
+          "maxKg": 2,
+          "price": 10.9
+        },
+        {
+          "maxKg": 5,
+          "price": 14
+        },
+        {
+          "maxKg": 10,
+          "price": 18
+        },
+        {
+          "maxKg": 20,
+          "price": 24
+        }
+      ],
+      "home": [
+        {
+          "maxKg": 0.5,
+          "price": 9.2
+        },
+        {
+          "maxKg": 1,
+          "price": 12.4
+        },
+        {
+          "maxKg": 2,
+          "price": 13.2
+        },
+        {
+          "maxKg": 5,
+          "price": 17
+        },
+        {
+          "maxKg": 10,
+          "price": 21
+        },
+        {
+          "maxKg": 20,
+          "price": 27
+        }
+      ]
+    },
+    "eu": {
+      "label": "Autres pays UE",
+      "relay": [
+        {
+          "maxKg": 0.5,
+          "price": 7.5
+        },
+        {
+          "maxKg": 1,
+          "price": 10.5
+        },
+        {
+          "maxKg": 2,
+          "price": 12
+        },
+        {
+          "maxKg": 5,
+          "price": 16
+        },
+        {
+          "maxKg": 10,
+          "price": 20
+        },
+        {
+          "maxKg": 20,
+          "price": 26
+        }
+      ],
+      "home": [
+        {
+          "maxKg": 0.5,
+          "price": 9.5
+        },
+        {
+          "maxKg": 1,
+          "price": 12.5
+        },
+        {
+          "maxKg": 2,
+          "price": 14.5
+        },
+        {
+          "maxKg": 5,
+          "price": 19
+        },
+        {
+          "maxKg": 10,
+          "price": 23
+        },
+        {
+          "maxKg": 20,
+          "price": 29
+        }
+      ]
+    }
+  },
+  "countryZones": {
+    "fr": "fr",
+    "de": "eu",
+    "be": "be",
+    "lu": "be",
+    "nl": "nl",
+    "es": "es",
+    "pt": "es",
+    "it": "es",
+    "pl": "pl",
+    "at": "eu",
+    "ie": "eu",
+    "dk": "eu",
+    "se": "eu",
+    "fi": "eu",
+    "cz": "eu",
+    "sk": "eu",
+    "hu": "eu",
+    "ro": "eu",
+    "gr": "eu"
+  }
+}

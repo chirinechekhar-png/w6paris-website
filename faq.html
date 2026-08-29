@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — W6 Paris</title>
+<meta name="description" content="Questions fréquentes sur les diffuseurs W6 Paris, les fragrances, la livraison et les retours.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/faq.html">
+</head>
+<body data-page="faq">
+
+<main id="main">
+  <div class="page-hero container">
+    <h1 data-i18n="faq.title">Questions fréquentes</h1>
+    <p data-i18n="faq.sub">Tout ce que vous devez savoir sur nos diffuseurs, nos fragrances et vos commandes.</p>
+  </div>
+
+  <section class="container faq-wrap" style="padding-bottom:96px;">
+    <div class="accordion" id="faqList"></div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+  window.initPage = function () {
+    var html = "";
+    for (var i = 1; i <= 7; i++) {
+      var q = t("faq.q" + i);
+      var a = t("faq.a" + i);
+      html += '<div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">' + q + '</button><div class="acc-body"><div class="acc-body-inner">' + a + '</div></div></div>';
+    }
+    document.getElementById("faqList").innerHTML = html;
+  };
+  window.toggleAcc = function (btn) {
+    var item = btn.parentElement;
+    var body = item.querySelector(".acc-body");
+    var open = item.classList.toggle("open");
+    body.style.maxHeight = open ? body.scrollHeight + "px" : "0px";
+  };
+</script>
+</body>
+</html>

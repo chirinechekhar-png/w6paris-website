@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventaire — W6 Paris</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/admin.css">
+<link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body class="admin-body">
+
+<div id="adminApp">
+
+  <!-- LOGIN -->
+  <section id="loginView" class="admin-login">
+    <div class="admin-login-card">
+      <img src="images/logo.png" alt="W6 Paris" style="height:34px;margin-bottom:28px;">
+      <h1>Inventaire</h1>
+      <p class="admin-login-sub">Espace réservé — W6 Paris</p>
+      <form id="loginForm">
+        <label class="admin-label" for="loginPass">Mot de passe</label>
+        <input class="admin-input" type="password" id="loginPass" autocomplete="current-password" required>
+        <p class="admin-error" id="loginError" style="display:none;">Mot de passe incorrect.</p>
+        <button class="btn btn-solid admin-btn" type="submit">Se connecter</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashView" class="admin-dash" style="display:none;">
+    <header class="admin-topbar">
+      <div class="admin-topbar-inner">
+        <img src="images/logo.png" alt="W6 Paris" style="height:26px;">
+        <div class="admin-topbar-actions">
+          <a class="admin-link admin-orders-link" href="orders.html">Commandes <span class="admin-orders-badge" id="ordersBadge" style="display:none;"></span></a>
+          <a class="admin-link" href="index.html" target="_blank">Voir le site ↗</a>
+          <button class="admin-link-btn" id="logoutBtn">Se déconnecter</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-wrap">
+      <div class="admin-stats" id="adminStats">
+        <div class="admin-stat-card"><span class="admin-stat-label">Revenu</span><span class="admin-stat-value" id="statRevenue">–</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-label">Commandes</span><span class="admin-stat-value" id="statOrders">–</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-label">Panier moyen</span><span class="admin-stat-value" id="statAverage">–</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-label">Comptes clients</span><span class="admin-stat-value" id="statCustomers">–</span></div>
+      </div>
+      <div class="admin-stat-lists">
+        <details class="admin-settings">
+          <summary>Top ventes</summary>
+          <div id="statTopProducts" class="admin-stat-list"></div>
+        </details>
+        <details class="admin-settings">
+          <summary>Meilleurs clients</summary>
+          <div id="statTopCustomers" class="admin-stat-list"></div>
+        </details>
+      </div>
+
+      <div class="admin-head">
+        <div>
+          <h1>Inventaire</h1>
+          <p class="admin-sub">Modifiez les quantités par couleur ou par format, puis enregistrez. Quantité 0 = « Rupture de stock ».</p>
+        </div>
+        <button class="btn btn-solid" id="addProductBtn" type="button">+ Ajouter un produit</button>
+      </div>
+
+      <div class="admin-statusbar" id="saveStatus" style="display:none;"></div>
+
+      <div class="admin-table">
+        <div class="admin-table-head">
+          <span>Produit</span>
+          <span>Type</span>
+          <span>Prix</span>
+          <span>Stock</span>
+          <span></span>
+        </div>
+        <div id="adminRows"></div>
+      </div>
+
+      <div class="admin-footer">
+        <a class="admin-link" href="shop.html" target="_blank">Ouvrir la boutique ↗</a>
+      </div>
+
+      <details class="admin-settings">
+        <summary>Codes promo</summary>
+        <div class="admin-promo-form">
+          <div class="admin-pass-row">
+            <input class="admin-input" type="text" id="promoCode" placeholder="CODE (ex: WELCOME10)" style="text-transform:uppercase;">
+            <select class="admin-input" id="promoType" style="width:150px;">
+              <option value="percent">%</option>
+              <option value="fixed">€ fixe</option>
+            </select>
+            <input class="admin-input" type="number" id="promoValue" placeholder="Valeur" min="0" step="0.01" style="width:110px;">
+            <input class="admin-input" type="number" id="promoMin" placeholder="Panier min (€)" min="0" step="0.01" style="width:130px;">
+            <input class="admin-input" type="number" id="promoMax" placeholder="Nb max d'usages" min="0" style="width:140px;">
+            <input class="admin-input" type="date" id="promoExpiry" style="width:150px;">
+            <button class="btn admin-btn" type="button" id="promoAddBtn">+ Ajouter</button>
+          </div>
+          <p class="admin-error" id="promoError" style="display:none;"></p>
+          <div class="admin-promo-list" id="promoList"></div>
+        </div>
+      </details>
+
+      <details class="admin-settings">
+        <summary>Livraison · Mondial Relay</summary>
+        <div class="admin-ship-editor">
+          <div class="form-row">
+            <label>Livraison offerte à partir de (€)</label>
+            <input class="admin-input" type="number" id="shipFreeFrom" min="0" step="0.01">
+          </div>
+          <div class="form-row">
+            <label>Livraison offerte par pays</label>
+            <p class="notes" style="font-size:12px;margin:0 0 10px;">Pour chaque pays, cochez les types de produits expédiés gratuitement.</p>
+            <div id="shipFreeRules"></div>
+            <button class="btn admin-btn" type="button" id="shipAddRuleBtn" style="margin-top:10px;">+ Ajouter un pays</button>
+          </div>
+          <div class="form-row">
+            <label>Zone</label>
+            <select class="admin-input" id="shipZoneSel"></select>
+          </div>
+          <div class="ship-tables">
+            <div>
+              <h4>Point Relais</h4>
+              <div class="ship-tiers" id="shipRelayTiers"></div>
+            </div>
+            <div>
+              <h4>À domicile</h4>
+              <div class="ship-tiers" id="shipHomeTiers"></div>
+            </div>
+          </div>
+          <div class="admin-actions">
+            <button class="btn admin-btn" type="button" id="shipSaveBtn">Enregistrer la livraison</button>
+            <button class="btn" type="button" id="shipAddTierBtn">+ Ajouter un palier</button>
+          </div>
+          <p class="admin-ok" id="shipOk" style="display:none;">Livraison enregistrée.</p>
+          <p class="admin-error" id="shipError" style="display:none;"></p>
+        </div>
+      </details>
+
+      <details class="admin-settings">
+        <summary>Paramètres · Mot de passe</summary>
+        <form id="passForm" class="admin-pass-form">
+          <div class="admin-pass-row">
+            <input class="admin-input" type="password" id="curPass" placeholder="Mot de passe actuel" autocomplete="current-password">
+            <input class="admin-input" type="password" id="newPass" placeholder="Nouveau mot de passe (min. 6 caractères)" autocomplete="new-password">
+            <button class="btn admin-btn" type="submit">Changer</button>
+          </div>
+          <p class="admin-error" id="passError" style="display:none;"></p>
+          <p class="admin-ok" id="passOk" style="display:none;">Mot de passe modifié.</p>
+        </form>
+      </details>
+    </div>
+  </section>
+
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal" style="display:none;">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">Ajouter un produit</h2>
+      <button class="modal-close" id="modalClose" type="button">&times;</button>
+    </div>
+    <form id="productForm">
+      <div class="modal-body">
+        <div class="form-row">
+          <label>Nom (Français) *</label>
+          <input class="admin-input" type="text" id="pfNameFr" required>
+        </div>
+        <div class="form-row">
+          <label>Nom (English)</label>
+          <input class="admin-input" type="text" id="pfNameEn">
+        </div>
+        <div class="form-row">
+          <label>Type *</label>
+          <select class="admin-input" id="pfType">
+            <option value="diffuser">Diffuseur</option>
+            <option value="oil">Fragrance</option>
+            <option value="bundle">Pack</option>
+          </select>
+        </div>
+        <div class="form-row form-row-2">
+          <div>
+            <label>Prix (€) *</label>
+            <input class="admin-input" type="number" id="pfPrice" min="0" step="0.01" required>
+          </div>
+          <div>
+            <label>Ancien prix (€, optionnel)</label>
+            <input class="admin-input" type="number" id="pfCompare" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="form-row form-row-2">
+          <div>
+            <label>Poids (kg) — utilisé pour les frais de port</label>
+            <input class="admin-input" type="number" id="pfWeight" min="0" step="0.01">
+          </div>
+          <div></div>
+        </div>
+        <div class="form-row">
+          <label>Image</label>
+          <select class="admin-input" id="pfImage"></select>
+        </div>
+        <div id="pfStockWrap" class="form-row"></div>
+        <div class="form-row">
+          <label>Description (Français)</label>
+          <textarea class="admin-input" id="pfDescFr" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Description (English)</label>
+          <textarea class="admin-input" id="pfDescEn" rows="3"></textarea>
+        </div>
+        <p class="admin-error" id="pfError" style="display:none;"></p>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn" id="modalCancel">Annuler</button>
+        <button type="submit" class="btn btn-solid" id="modalSubmit">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

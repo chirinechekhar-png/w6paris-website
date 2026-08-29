@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Livraison — W6 Paris</title>
+<meta name="description" content="Conditions de livraison W6 Paris : expédition dans toute l'Union Européenne sous 24-48h.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/shipping.html">
+</head>
+<body data-page="shipping">
+
+<main id="main">
+  <div class="page-hero container">
+    <h1 data-i18n="shipping.title">Livraison</h1>
+    <p data-i18n="shipping.sub">Une livraison soignée dans toute l'Union Européenne.</p>
+  </div>
+
+  <section class="container prose">
+    <div id="shippingContent"></div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+  var SHIP = {
+    fr: [
+      ["Zones de livraison", "Nous expédions dans toute l'Union Européenne : France, Belgique, Luxembourg, Allemagne, Espagne, Italie, Pays-Bas et tous les autres États membres."],
+      ["Modes de livraison", "Expédition en Point Relais ou à domicile via Mondial Relay. Les frais de port sont calculés au moment de la commande en fonction du poids du colis, de la destination et du mode choisi."],
+      ["Délais", "Les commandes sont préparées et expédiées sous 24 à 48 heures ouvrées. Délai de livraison estimé : 2 à 5 jours ouvrés selon votre destination."],
+      ["Frais de port", "Les frais de port dépendent du poids du colis et de la destination. La livraison est offerte pour les diffuseurs et le Pack Duo en France métropolitaine, et dès un certain montant d'achat selon la campagne en cours."],
+      ["Retrait en boutique", "Commandez en ligne et récupérez votre commande gratuitement dans notre boutique-showroom : 12 Rue Boulard, 75014 Paris, du lundi au samedi de 10h à 19h. Une expérience sur place pour sentir nos fragrances avant de repartir."],
+      ["Suivi de commande", "Suivez votre commande à tout moment via la page Suivi, avec le numéro de suivi Mondial Relay indiqué dès l'expédition."]
+    ],
+    en: [
+      ["Delivery zones", "We ship to every country in the European Union: France, Belgium, Luxembourg, Germany, Spain, Italy, the Netherlands and all other member states."],
+      ["Delivery methods", "Delivery to a pickup point or to your home via Mondial Relay. Shipping costs are calculated at checkout based on the parcel weight, destination and chosen method."],
+      ["Timings", "Orders are prepared and shipped within 24 to 48 working hours. Estimated delivery time: 2 to 5 working days depending on your destination."],
+      ["Shipping costs", "Shipping costs depend on the parcel weight and the destination. Delivery is free for diffusers and the Duo Pack in metropolitan France, and free above a certain order amount depending on the current campaign."],
+      ["Pick up in store", "Order online and collect your order free of charge at our boutique-showroom: 12 Rue Boulard, 75014 Paris, Monday to Saturday from 10am to 7pm. An in-store experience to smell our fragrances before you leave."],
+      ["Order tracking", "Track your order at any time via the Tracking page, with the Mondial Relay tracking number shown as soon as your parcel ships."]
+    ]
+  };
+  window.initPage = function () {
+    document.getElementById("shippingContent").innerHTML = SHIP[LANG]
+      .map(function (s) { return "<h2>" + s[0] + "</h2><p>" + s[1] + "</p>"; })
+      .join("");
+  };
+</script>
+</body>
+</html>

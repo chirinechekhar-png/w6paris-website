@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diffuseurs — W6 Paris</title>
+<meta name="description" content="Découvrez les diffuseurs à froid W6 Paris : i6, i7 et Nomade. Nébulisation à froid, sans chaleur, pour des intérieurs d'exception.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/shop.html">
+</head>
+<body data-page="diffusers">
+
+<main id="main">
+  <div class="container">
+    <div class="collection-head">
+      <div>
+        <span class="eyebrow">W6 Paris</span>
+        <h1 data-i18n="shop.diffusersTitle">Diffuseurs</h1>
+        <p data-i18n="shop.diffusersSub">Une technologie de nébulisation à froid, sans chaleur, pour révéler chaque fragrance dans toute sa pureté.</p>
+      </div>
+      <p style="color:var(--accent); font-size:14px;" data-i18n="product.freeGift">Parfum offert avec chaque diffuseur</p>
+    </div>
+    <div class="grid" data-diffusers></div>
+  </div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+  window.initPage = function () {
+    renderDiffusersGrid("[data-diffusers]");
+  };
+</script>
+</body>
+</html>

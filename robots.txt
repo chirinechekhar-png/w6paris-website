@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /checkout.html
+Disallow: /account.html
+Disallow: /orders.html
+
+Sitemap: https://w6paris.com/sitemap.xml

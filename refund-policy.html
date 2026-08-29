@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Politique de remboursement — W6 Paris</title>
+<meta name="description" content="Politique de remboursement et de retour W6 Paris.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/refund-policy.html">
+</head>
+<body data-page="refund">
+
+<main id="main">
+  <div class="page-hero container">
+    <h1 data-i18n="policy.refundTitle">Politique de remboursement</h1>
+    <p data-i18n="policy.refundSub">Vos droits et nos engagements.</p>
+  </div>
+
+  <section class="container prose">
+    <div id="refundContent"></div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+  var REFUND = {
+    fr: [
+      ["Droit de rétractation", "Conformément à la réglementation européenne, vous disposez d'un délai de 14 jours à compter de la réception de votre commande pour exercer votre droit de rétractation, sans avoir à justifier de motif."],
+      ["Conditions de retour", "Les produits doivent être retournés dans leur état d'origine, non utilisés, dans leur emballage d'origine. Les fragrances doivent être non ouvertes et scellées. Les frais de retour sont à la charge du client, sauf en cas d'erreur de notre part ou de produit défectueux."],
+      ["Remboursement", "Le remboursement est effectué sous 14 jours à compter de la réception du produit retourné, via le moyen de paiement utilisé lors de la commande. Les frais de livraison initiaux sont également remboursés en cas de rétractation intégrale."],
+      ["Produits endommagés", "Si vous recevez un produit endommagé ou non conforme, contactez-nous sous 48h à contact@w6paris.com avec une photo du produit : nous procédons à un échange ou à un remboursement rapide."],
+      ["Produits d'exception", "Les produits d'hygiène ouverts, ainsi que les fragrances dont le sceau a été retiré, ne peuvent être ni repris ni échangés, conformément à la réglementation."]
+    ],
+    en: [
+      ["Right of withdrawal", "In accordance with European regulations, you have 14 days from receipt of your order to exercise your right of withdrawal, without having to provide a reason."],
+      ["Return conditions", "Products must be returned in their original condition, unused, in their original packaging. Fragrances must be unopened and sealed. Return shipping costs are the customer's responsibility, except in the case of our error or a defective product."],
+      ["Refunds", "Refunds are issued within 14 days of receiving the returned product, via the payment method used for the order. Initial delivery costs are also refunded in the event of a full withdrawal."],
+      ["Damaged products", "If you receive a damaged or non-conforming product, contact us within 48 hours at contact@w6paris.com with a photo of the product: we will arrange a quick exchange or refund."],
+      ["Excluded products", "Opened hygiene products and fragrances whose seal has been removed cannot be returned or exchanged, in accordance with regulations."]
+    ]
+  };
+  window.initPage = function () {
+    document.getElementById("refundContent").innerHTML = REFUND[LANG]
+      .map(function (s) { return "<h2>" + s[0] + "</h2><p>" + s[1] + "</p>"; })
+      .join("");
+  };
+</script>
+</body>
+</html>

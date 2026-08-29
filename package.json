@@ -1,0 +1,16 @@
+{
+  "name": "w6paris-website",
+  "version": "1.0.0",
+  "description": "W6 Paris storefront + inventory admin",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pdfkit": "^0.19.1"
+  }
+}

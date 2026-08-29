@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conditions générales de vente — W6 Paris</title>
+<meta name="description" content="Conditions générales de vente de la boutique W6 Paris.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/terms.html">
+</head>
+<body data-page="terms">
+
+<main id="main">
+  <div class="page-hero container">
+    <h1 data-i18n="policy.termsTitle">Conditions générales de vente</h1>
+    <p data-i18n="policy.termsSub">Les conditions qui régissent nos ventes.</p>
+  </div>
+
+  <section class="container prose">
+    <div id="termsContent"></div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+  var TERMS = {
+    fr: [
+      ["Objet", "Les présentes conditions générales de vente régissent les relations contractuelles entre W6 Paris et le client, pour toute commande passée sur le site w6paris.com."],
+      ["Produits", "Les produits proposés sont : des diffuseurs à froid et des fragrances d'intérieur. Les photographies présentées sur le site n'ont pas de valeur contractuelle."],
+      ["Prix", "Les prix sont indiqués en euros, toutes taxes comprises. Les frais de livraison sont indiqués au moment de la commande. W6 Paris se réserve le droit de modifier ses prix à tout moment, les produits étant facturés au tarif en vigueur lors de la validation de la commande."],
+      ["Commande", "La commande est considérée comme confirmée après validation du paiement. Un e-mail de confirmation est envoyé au client. W6 Paris se réserve le droit de refuser toute commande en cas de litige antérieur ou de données invalides."],
+      ["Paiement", "Le paiement s'effectue en ligne, de manière sécurisée, par carte bancaire ou tout autre moyen de paiement proposé. La commande n'est expédiée qu'après confirmation du paiement."],
+      ["Livraison", "Les produits sont livrés à l'adresse indiquée par le client, dans les pays de l'Union Européenne. Les délais de livraison sont donnés à titre indicatif. Le transfert des risques s'opère à la réception du colis."],
+      ["Rétractation", "Conformément à la législation européenne, le client dispose d'un délai de 14 jours pour exercer son droit de rétractation, dans les conditions décrites dans notre politique de remboursement."],
+      ["Garanties", "Les produits bénéficient des garanties légales de conformité et des vices cachés. Les garanties couvrent les défauts de fabrication et les pannes matérielles, dans les conditions légales applicables."],
+      ["Responsabilité", "W6 Paris ne saurait être tenu responsable des dommages indirects résultant de l'utilisation des produits. La responsabilité de W6 Paris est limitée au montant de la commande concernée."],
+      ["Droit applicable", "Les présentes conditions sont soumises au droit français. Tout litige relatif à leur exécution relève de la compétence des tribunaux français, sous réserve des règles de compétence légales applicables."],
+      ["Contact", "Pour toute question relative à ces conditions, contactez-nous à contact@w6paris.com."]
+    ],
+    en: [
+      ["Purpose", "These terms and conditions govern the contractual relationship between W6 Paris and the customer, for any order placed on w6paris.com."],
+      ["Products", "The products offered are: cold-diffusion diffusers and home fragrances. Photographs shown on the site are not contractually binding."],
+      ["Prices", "Prices are shown in euros, tax included. Delivery costs are shown at checkout. W6 Paris reserves the right to change its prices at any time, products being invoiced at the rate in force at the time the order is confirmed."],
+      ["Order", "An order is considered confirmed once payment has been validated. A confirmation email is sent to the customer. W6 Paris reserves the right to refuse any order in the event of a previous dispute or invalid data."],
+      ["Payment", "Payment is made online, securely, by bank card or any other payment method offered. The order is only shipped after payment is confirmed."],
+      ["Delivery", "Products are delivered to the address provided by the customer, within the European Union. Delivery times are given as an indication. The transfer of risk occurs upon receipt of the parcel."],
+      ["Withdrawal", "In accordance with European legislation, the customer has 14 days to exercise their right of withdrawal, under the conditions described in our refund policy."],
+      ["Warranties", "Products benefit from the legal warranties of conformity and latent defects. The warranties cover manufacturing defects and material failures, under the applicable legal conditions."],
+      ["Liability", "W6 Paris cannot be held liable for indirect damage resulting from the use of products. W6 Paris's liability is limited to the amount of the order concerned."],
+      ["Applicable law", "These terms are governed by French law. Any dispute relating to their performance falls within the jurisdiction of the French courts, subject to the applicable legal rules of jurisdiction."],
+      ["Contact", "For any question regarding these terms, contact us at contact@w6paris.com."]
+    ]
+  };
+  window.initPage = function () {
+    document.getElementById("termsContent").innerHTML = TERMS[LANG]
+      .map(function (s) { return "<h2>" + s[0] + "</h2><p>" + s[1] + "</p>"; })
+      .join("");
+  };
+</script>
+</body>
+</html>

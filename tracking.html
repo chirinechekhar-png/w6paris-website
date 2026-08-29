@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi de commande — W6 Paris</title>
+<meta name="description" content="Suivez le statut de votre commande W6 Paris.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/https://w6paris.com/tracking.html">
+</head>
+<body data-page="tracking">
+
+<main id="main">
+  <div class="container">
+    <div class="page-hero">
+      <span class="eyebrow">W6 Paris</span>
+      <h1 data-i18n="tracking.title">Suivi de commande</h1>
+    </div>
+
+    <div class="tracking-box">
+      <form id="trackForm">
+        <div class="field">
+          <label data-i18n="tracking.orderId">N° de commande *</label>
+          <input type="text" id="trkId" placeholder="W6-0001" required>
+        </div>
+        <div class="field">
+          <label data-i18n="tracking.email">E-mail utilisé lors de la commande</label>
+          <input type="email" id="trkEmail">
+        </div>
+        <button type="submit" class="btn btn-solid add-to-cart" data-i18n="tracking.submit">Voir le statut</button>
+        <p class="tracking-err" id="trkErr" style="display:none;"></p>
+      </form>
+    </div>
+
+    <div class="tracking-result" id="trkResult" style="display:none;">
+      <div class="trk-head">
+        <h2 id="trkOrderId"></h2>
+        <span class="trk-status" id="trkStatus"></span>
+      </div>
+      <p class="trk-date" id="trkDate"></p>
+      <p class="trk-method" id="trkMethod" style="display:none;"></p>
+      <p class="trk-tracking" id="trkTracking" style="display:none;"></p>
+      <div class="trk-steps" id="trkSteps"></div>
+      <div class="trk-items" id="trkItems"></div>
+      <div class="trk-totals">
+        <div class="trk-total"><span data-i18n="cart.subtotal">Sous-total</span><strong id="trkSubtotal"></strong></div>
+        <div class="trk-total"><span data-i18n="checkout.shipping">Livraison</span><strong id="trkShipping"></strong></div>
+        <div class="trk-total trk-disc" id="trkDiscRow" style="display:none;"><span data-i18n="checkout.discount">Réduction</span><strong id="trkDiscount"></strong></div>
+        <div class="trk-total trk-grand"><span data-i18n="checkout.grandTotal">Total</span><strong id="trkTotal"></strong></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script src="js/tracking.js"></script>
+</body>
+</html>
