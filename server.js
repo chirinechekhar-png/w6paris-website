@@ -566,8 +566,11 @@ function sendOrderEmail(order) {
   const transporter = nodemailer.createTransport({
     host,
     port,
-    secure: port === 465, // false for 587 (uses STARTTLS)
-    auth: { user, pass }
+    secure: port === 465,
+    auth: { user, pass },
+    tls: {
+      rejectUnauthorized: false
+    }
   });
 
   const itemsHtml = order.items.map(i => `<li>${i.qty}x ${i.name} ${i.options ? `(${i.options})` : ""} — ${i.line.toFixed(2)}€</li>`).join("");
