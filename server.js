@@ -593,14 +593,16 @@ function sendOrderEmail(order) {
     to: order.customer.email,
     subject: `Confirmation de commande ${order.id} — W6 Paris`,
     html: customerHtml
-  }).catch(err => console.error("[Email] Error sending customer email:", err));
+  }).then(res => console.log("[Email] Customer email sent:", res))
+    .catch(err => console.error("[Email] Customer email error:", err));
 
   resend.emails.send({
     from,
     to: "contact@w6paris.com",
     subject: `[Nouvelle Commande] ${order.id} — ${order.total.toFixed(2)}€`,
     html: adminHtml
-  }).catch(err => console.error("[Email] Error sending admin email:", err));
+  }).then(res => console.log("[Email] Admin email sent:", res))
+    .catch(err => console.error("[Email] Admin email error:", err));
 }
 
 /* Public promo validation (for checkout preview) */
