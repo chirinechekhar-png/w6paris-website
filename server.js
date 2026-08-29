@@ -546,8 +546,70 @@ app.post("/api/orders", (req, res) => {
   }
 
   console.log(`[W6] NEW ORDER ${order.id} — ${order.total.toFixed(2)}€ (${subtotal.toFixed(2)} + ${shipping.toFixed(2)} port${promo.code ? " − " + discount.toFixed(2) + " promo " + promo.code : ""}) — ${name}`);
+  sendOrderEmail(order);
   res.json({ ok: true, id: order.id, total: order.total });
 });
+
+const nodemailer = require("nodemailer");
+
+function sendOrderEmail(order) {
+  const host = process.env.SMTP_HOST || "smtp.ionos.com";
+  const port = Number(process.env.SMTP_PORT) || 465;
+  const user = process.env.SMTP_USER || "contact@w6paris.com";
+  const pass = process.env.SMTP_PASS;
+
+  if (!pass) {
+    console.log("[Email] SMTP_PASS not set, skipping email.");
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass }
+  });
+
+  const itemsHtml = order.items.map(i => `<li>${i.qty}x ${i.name} ${i.options ? `(${i.options})` : ""} — ${i.line.toFixed(2)}€</li>`).join("");
+
+  const customerHtml = `
+    <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:20px;">
+      <h2 style="color:#9a7b3f;">Merci pour votre commande, ${order.customer.name} !</h2>
+      <p>Votre commande <strong>${order.id}</strong> a bien été enregistrée.</p>
+      <h3>Récapitulatif :</h3>
+      <ul>${itemsHtml}</ul>
+      <p><strong>Sous-total :</strong> ${order.subtotal.toFixed(2)}€</p>
+      <p><strong>Livraison :</strong> ${order.shipping.toFixed(2)}€</p>
+      ${order.discount > 0 ? `<p><strong>Remise (${order.promoCode}) :</strong> -${order.discount.toFixed(2)}€</p>` : ""}
+      <p><strong>Total :</strong> ${order.total.toFixed(2)}€</p>
+      <p style="margin-top:30px; font-size:12px; color:#6b6b6b;">W6 Paris — 12 Rue Boulard, 75014 Paris</p>
+    </div>
+  `;
+
+  const adminHtml = `
+    <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:20px;">
+      <h2>Nouvelle commande ${order.id} (${order.total.toFixed(2)}€)</h2>
+      <p><strong>Client :</strong> ${order.customer.name} (${order.customer.email}, ${order.customer.phone || "pas de tél"})</p>
+      <p><strong>Mode :</strong> ${order.fulfillment}</p>
+      <h3>Articles :</h3>
+      <ul>${itemsHtml}</ul>
+    </div>
+  `;
+
+  transporter.sendMail({
+    from: `"W6 Paris" <${user}>`,
+    to: order.customer.email,
+    subject: `Confirmation de commande ${order.id} — W6 Paris`,
+    html: customerHtml
+  }).catch(err => console.error("[Email] Error sending customer email:", err));
+
+  transporter.sendMail({
+    from: `"W6 Paris Bot" <${user}>`,
+    to: user,
+    subject: `[Nouvelle Commande] ${order.id} — ${order.total.toFixed(2)}€`,
+    html: adminHtml
+  }).catch(err => console.error("[Email] Error sending admin email:", err));
+}
 
 /* Public promo validation (for checkout preview) */
 app.post("/api/promo/validate", (req, res) => {
