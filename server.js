@@ -554,7 +554,7 @@ const nodemailer = require("nodemailer");
 
 function sendOrderEmail(order) {
   const host = process.env.SMTP_HOST || "smtp.ionos.com";
-  const port = Number(process.env.SMTP_PORT) || 465;
+  const port = Number(process.env.SMTP_PORT) || 587;
   const user = process.env.SMTP_USER || "contact@w6paris.com";
   const pass = process.env.SMTP_PASS;
 
@@ -566,7 +566,7 @@ function sendOrderEmail(order) {
   const transporter = nodemailer.createTransport({
     host,
     port,
-    secure: port === 465,
+    secure: port === 465, // false for 587 (uses STARTTLS)
     auth: { user, pass }
   });
 
