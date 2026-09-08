@@ -246,6 +246,7 @@ function injectFooter() {
             <a href="terms.html">${t("footer.info.terms")}</a>
             <a href="privacy-policy.html">${t("footer.info.privacy")}</a>
             <a href="refund-policy.html">${t("footer.info.refund")}</a>
+            <a href="mentions-legales.html">${t("footer.info.legal")}</a>
           </div>
           <div class="footer-col">
             <h4>${t("footer.socialsTitle")}</h4>
@@ -375,12 +376,42 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       const btn = form.querySelector("button");
       const input = form.querySelector("input");
+      const email = input ? input.value.trim() : "";
+      if (!email) return;
+
+      const original = btn ? btn.textContent : "";
       if (btn) {
-        const original = btn.textContent;
-        btn.textContent = "✓";
-        setTimeout(() => { btn.textContent = original; }, 2000);
+        btn.disabled = true;
+        btn.textContent = "…";
       }
-      if (input) input.value = "";
+
+      fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      })
+        .then((r) => r.json())
+        .then((res) => {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "✓ WELCOME10";
+            setTimeout(() => { btn.textContent = original; }, 4000);
+          }
+          if (input) input.value = "";
+          const note = form.parentElement ? form.parentElement.querySelector(".newsletter-note") : null;
+          if (note) {
+            note.textContent = LANG === "fr"
+              ? "Merci ! Utilisez le code WELCOME10 pour profiter de -10%."
+              : "Thank you! Use code WELCOME10 for 10% off your order.";
+            note.style.color = "var(--accent)";
+          }
+        })
+        .catch(() => {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = original;
+          }
+        });
     });
   });
   loadLiveStock().then(() => {

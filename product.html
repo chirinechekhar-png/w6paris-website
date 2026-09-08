@@ -96,7 +96,7 @@
     wrap.className = "field";
     var required = (o.key === "fragrances") ? ' <span style="color:var(--accent);text-transform:none;">(' + t("bundle.freeLabel") + ')</span>' : "";
     var label = document.createElement("label");
-    label.textContent = (o.free ? t("product.freeGift") + " · " : "") + o.name[LANG] + required;
+    label.innerHTML = (o.free ? t("product.freeGift") + " · " : "") + o.name[LANG] + required;
     wrap.appendChild(label);
 
     var list = document.createElement("div");
@@ -108,6 +108,7 @@
     o.values.forEach(function (v) {
       var btn = document.createElement("button");
       btn.type = "button";
+      btn.dataset.value = v.label;
       if (o.key === "color") {
         btn.className = "color-opt";
         var dot = document.createElement("span");
@@ -129,13 +130,14 @@
           else if (arr.length < max) arr.push(v.label);
           else { alert(max + " " + o.name[LANG]); }
           list.querySelectorAll("button").forEach(function (b) {
-            var on = (arr.indexOf(b.textContent) !== -1) || (selected[o.key] === b.textContent && arr.length === 0);
+            var val = b.dataset.value;
+            var on = (arr.indexOf(val) !== -1) || (selected[o.key] === val && arr.length === 0);
             b.classList.toggle("active", on);
           });
         } else {
           selected[o.key] = v.label;
           list.querySelectorAll("button").forEach(function (b) {
-            b.classList.toggle("active", b === btn);
+            b.classList.toggle("active", b.dataset.value === v.label);
           });
           if (o.key === "color") renderGallery();
         }

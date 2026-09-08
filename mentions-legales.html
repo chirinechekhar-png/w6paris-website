@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mentions légales — W6 Paris</title>
+<meta name="description" content="Mentions légales et informations réglementaires de la maison W6 Paris.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://w6paris.com/mentions-legales.html">
+</head>
+<body data-page="legal">
+
+<main id="main">
+  <div class="page-hero container">
+    <h1 id="legalTitle">Mentions légales</h1>
+    <p id="legalSub">Informations réglementaires et mentions légales obligatoires.</p>
+  </div>
+
+  <section class="container prose">
+    <div id="legalContent"></div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+  var LEGAL = {
+    fr: [
+      ["1. Éditeur du site", "Le site internet <strong>w6paris.com</strong> est édité par la société <strong>W6 Paris</strong>.<br>Boutique & Showroom : 12 Rue Boulard, 75014 Paris, France.<br>Adresse e-mail : <a href=\"mailto:contact@w6paris.com\" style=\"color:var(--accent);\">contact@w6paris.com</a>.<br>Immatriculation : RCS de Paris (en cours d'immatriculation / SIRET disponible sur demande).<br>Numéro de TVA intracommunautaire : FR (en cours d'attribution)."],
+      ["2. Directeur de la publication", "Le directeur de la publication du site est la direction de W6 Paris.<br>Contact : <a href=\"mailto:contact@w6paris.com\" style=\"color:var(--accent);\">contact@w6paris.com</a>."],
+      ["3. Hébergement du site", "Le site est hébergé sur des infrastructures sécurisées dans l'Union Européenne.<br>Pour toute question technique relative à l'hébergement, veuillez contacter notre équipe à <a href=\"mailto:contact@w6paris.com\" style=\"color:var(--accent);\">contact@w6paris.com</a>."],
+      ["4. Propriété intellectuelle", "L'ensemble des éléments figurant sur le site w6paris.com (textes, visuels, photographies, logotypes, charte graphique, vidéos, structure) est protégé par le droit d'auteur, des marques et de la propriété intellectuelle. Toute reproduction, représentation, diffusion ou exploitation, totale ou partielle, sans l'autorisation écrite préalable de W6 Paris est strictement interdite."],
+      ["5. Données personnelles et cookies", "Conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés, vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité des données vous concernant. Vous pouvez exercer ce droit à tout moment par e-mail à <a href=\"mailto:contact@w6paris.com\" style=\"color:var(--accent);\">contact@w6paris.com</a>. Pour plus d'informations, consultez notre <a href=\"privacy-policy.html\" style=\"color:var(--accent);\">Politique de confidentialité</a>."],
+      ["6. Règlement des litiges et médiation", "Conformément aux articles L.616-1 et R.616-1 du Code de la consommation, en cas de litige non résolu directement avec notre service client, le consommateur peut recourir gratuitement à un médiateur de la consommation. La Commission européenne met également à disposition une plateforme de règlement en ligne des litiges (RLL) accessible à l'adresse : https://ec.europa.eu/consumers/odr/."]
+    ],
+    en: [
+      ["1. Publisher", "The website <strong>w6paris.com</strong> is published by <strong>W6 Paris</strong>.<br>Boutique & Showroom: 12 Rue Boulard, 75014 Paris, France.<br>Email: <a href=\"mailto:contact@w6paris.com\" style=\"color:var(--accent);\">contact@w6paris.com</a>.<br>Company registration: Paris Trade and Companies Register (RCS Paris)."],
+      ["2. Publication Director", "The publication director of the website is the management of W6 Paris.<br>Contact: <a href=\"mailto:contact@w6paris.com\" style=\"color:var(--accent);\">contact@w6paris.com</a>."],
+      ["3. Web Hosting", "The website is hosted on secure server infrastructure located within the European Union.<br>For any technical questions, contact <a href=\"mailto:contact@w6paris.com\" style=\"color:var(--accent);\">contact@w6paris.com</a>."],
+      ["4. Intellectual Property", "All contents of the site w6paris.com (texts, images, photographs, logos, brand marks, videos, graphics) are protected by copyright, trademark and intellectual property laws. Any total or partial reproduction, representation, distribution or use without prior written consent is strictly prohibited."],
+      ["5. Personal Data & Cookies", "In accordance with the General Data Protection Regulation (GDPR), you have the right to access, rectify, delete, and port your personal information. You can exercise this right at any time by writing to <a href=\"mailto:contact@w6paris.com\" style=\"color:var(--accent);\">contact@w6paris.com</a>. For full details, see our <a href=\"privacy-policy.html\" style=\"color:var(--accent);\">Privacy Policy</a>."],
+      ["6. Dispute Resolution & Mediation", "In case of a dispute not settled directly with our customer care, European consumers may use alternative dispute resolution or the European Commission's Online Dispute Resolution platform at: https://ec.europa.eu/consumers/odr/."]
+    ]
+  };
+
+  window.initPage = function () {
+    var isEn = LANG === "en";
+    document.getElementById("legalTitle").textContent = isEn ? "Legal Notice" : "Mentions légales";
+    document.getElementById("legalSub").textContent = isEn ? "Regulatory and legal disclosure." : "Informations réglementaires et mentions légales obligatoires.";
+    document.getElementById("legalContent").innerHTML = LEGAL[LANG]
+      .map(function (s) { return "<h2>" + s[0] + "</h2><p>" + s[1] + "</p>"; })
+      .join("");
+  };
+</script>
+</body>
+</html>

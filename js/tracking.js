@@ -62,7 +62,11 @@
     var email = $("trkEmail").value.trim();
     var err = $("trkErr");
     err.style.display = "none";
-    if (!id) return;
+    if (!id || !email) {
+      err.textContent = t("tracking.errEmail") || "Veuillez renseigner votre numéro de commande et votre adresse e-mail.";
+      err.style.display = "block";
+      return;
+    }
 
     fetch("/api/orders/" + encodeURIComponent(id) + "?email=" + encodeURIComponent(email))
       .then(function (r) {
@@ -76,7 +80,7 @@
         } else {
           err.textContent = res.status === 403
             ? t("tracking.errEmail")
-            : t("tracking.errNotFound");
+            : (res.j && res.j.error) || t("tracking.errNotFound");
           err.style.display = "block";
         }
       })
@@ -92,9 +96,8 @@
       lookup();
     });
     var p = new URLSearchParams(location.search);
-    if (p.get("id")) {
-      $("trkId").value = p.get("id");
-      lookup();
-    }
+    if (p.get("id")) $("trkId").value = p.get("id");
+    if (p.get("email")) $("trkEmail").value = p.get("email");
+    if (p.get("id") && p.get("email")) lookup();
   });
 })();

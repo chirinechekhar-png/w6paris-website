@@ -155,6 +155,38 @@
           <p class="admin-ok" id="passOk" style="display:none;">Mot de passe modifié.</p>
         </form>
       </details>
+
+      <details class="admin-settings" id="adminMessagesSection">
+        <summary>Messages de contact <span id="msgCountBadge" style="background:var(--accent);color:#fff;border-radius:10px;padding:2px 8px;font-size:12px;margin-left:8px;display:none;">0</span></summary>
+        <div style="padding:16px 0;">
+          <div id="messagesList"></div>
+          <p id="messagesEmpty" class="notes" style="display:none;">Aucun message reçu pour le moment.</p>
+        </div>
+      </details>
+
+      <details class="admin-settings" id="adminNewsletterSection">
+        <summary>Inscriptions Newsletter (<span id="newsletterCount">0</span>)</summary>
+        <div style="padding:16px 0;">
+          <div style="margin-bottom:12px;">
+            <button class="btn" type="button" id="exportNewsletterBtn">Exporter les e-mails (CSV)</button>
+          </div>
+          <div id="newsletterList"></div>
+          <p id="newsletterEmpty" class="notes" style="display:none;">Aucun inscrit pour le moment.</p>
+        </div>
+      </details>
+
+      <details class="admin-settings" id="adminEmailSection">
+        <summary>Configuration E-mails · Test Resend</summary>
+        <div style="padding:16px 0;">
+          <p class="notes" style="margin-bottom:12px;">Testez la délivrabilité des e-mails de commande et vérifiez votre clé Resend.</p>
+          <div class="admin-pass-row">
+            <input class="admin-input" type="email" id="testEmailTo" placeholder="Destinataire (ex: votre-email@gmail.com)" style="max-width:320px;">
+            <button class="btn admin-btn" type="button" id="sendTestEmailBtn">Envoyer un e-mail de test</button>
+          </div>
+          <p class="admin-ok" id="testEmailOk" style="display:none;margin-top:10px;">✓ E-mail de test envoyé avec succès !</p>
+          <p class="admin-error" id="testEmailErr" style="display:none;margin-top:10px;"></p>
+        </div>
+      </details>
     </div>
   </section>
 

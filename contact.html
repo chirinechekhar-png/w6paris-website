@@ -72,11 +72,52 @@
     });
     document.getElementById("contactForm").addEventListener("submit", function (e) {
       e.preventDefault();
+      var form = this;
+      var btn = form.querySelector('button[type="submit"]');
       var ok = document.getElementById("contactSuccess");
-      ok.textContent = t("contact.success");
-      ok.style.display = "block";
-      this.reset();
-      setTimeout(function () { ok.style.display = "none"; }, 6000);
+      var originalText = btn.textContent;
+
+      btn.disabled = true;
+      btn.textContent = "…";
+      ok.style.display = "none";
+
+      var payload = {
+        name: document.getElementById("cName").value.trim(),
+        email: document.getElementById("cEmail").value.trim(),
+        subject: document.getElementById("cSubject").value.trim(),
+        message: document.getElementById("cMessage").value.trim()
+      };
+
+      fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(function (r) {
+          return r.json().then(function (j) { return { ok: r.ok, j: j }; });
+        })
+        .then(function (res) {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          if (res.ok) {
+            ok.style.color = "var(--accent)";
+            ok.textContent = t("contact.success");
+            ok.style.display = "block";
+            form.reset();
+            setTimeout(function () { ok.style.display = "none"; }, 8000);
+          } else {
+            ok.style.color = "#b3261e";
+            ok.textContent = (res.j && res.j.error) || "Une erreur est survenue.";
+            ok.style.display = "block";
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          ok.style.color = "#b3261e";
+          ok.textContent = "Erreur de connexion avec le serveur.";
+          ok.style.display = "block";
+        });
     });
   };
 </script>

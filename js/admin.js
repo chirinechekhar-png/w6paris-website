@@ -56,6 +56,8 @@ async function checkAuth() {
     loadPromos();
     loadShippingConfig();
     loadStats();
+    loadMessages();
+    loadNewsletter();
     refreshOrdersBadge();
     setInterval(refreshOrdersBadge, 30000);
   } else {
@@ -616,3 +618,137 @@ document.addEventListener("click", (e) => {
     e.target.closest(".ship-free-rule").remove();
   }
 });
+
+/* ---------- Messages & Newsletter admin handlers ---------- */
+
+async function loadMessages() {
+  const r = await api("/api/admin/messages");
+  const listEl = $("#messagesList");
+  const emptyEl = $("#messagesEmpty");
+  const badgeEl = $("#msgCountBadge");
+  if (!listEl) return;
+  if (!r.ok || !r.d || !r.d.messages || r.d.messages.length === 0) {
+    listEl.innerHTML = "";
+    if (emptyEl) emptyEl.style.display = "block";
+    if (badgeEl) badgeEl.style.display = "none";
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = "none";
+  const msgs = r.d.messages;
+  const unreadCount = msgs.filter((m) => !m.read).length;
+  if (badgeEl) {
+    badgeEl.textContent = unreadCount;
+    badgeEl.style.display = unreadCount > 0 ? "inline-block" : "none";
+  }
+
+  listEl.innerHTML = msgs.map((m) => {
+    const dateStr = new Date(m.createdAt).toLocaleDateString("fr-FR", {
+      day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
+    });
+    return `
+      <div class="admin-msg-card" style="background:#fff;border:1px solid var(--line);padding:16px;margin-bottom:12px;border-left:4px solid ${m.read ? "var(--line)" : "var(--accent)"};">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <strong>${esc(m.subject)}</strong> — <span style="color:var(--muted);">${esc(m.name)} (&lt;<a href="mailto:${esc(m.email)}">${esc(m.email)}</a>&gt;)</span>
+          </div>
+          <span style="font-size:12px;color:var(--muted);">${dateStr}</span>
+        </div>
+        <p style="margin:8px 0;white-space:pre-wrap;font-size:14px;color:var(--ink);">${esc(m.message)}</p>
+        <div style="display:flex;gap:10px;margin-top:10px;">
+          ${!m.read ? `<button class="btn admin-btn-sm" onclick="markMessageRead('${m.id}')" style="font-size:12px;padding:4px 10px;">Marquer comme lu</button>` : ""}
+          <button class="btn admin-btn-sm" onclick="deleteMessage('${m.id}')" style="font-size:12px;padding:4px 10px;color:#b3261e;border-color:#b3261e;">Supprimer</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.markMessageRead = async function(id) {
+  await api(`/api/admin/messages/${id}/read`, { method: "PUT" });
+  loadMessages();
+};
+
+window.deleteMessage = async function(id) {
+  if (!confirm("Supprimer ce message ?")) return;
+  await api(`/api/admin/messages/${id}`, { method: "DELETE" });
+  loadMessages();
+};
+
+async function loadNewsletter() {
+  const r = await api("/api/admin/newsletter");
+  const listEl = $("#newsletterList");
+  const emptyEl = $("#newsletterEmpty");
+  const countEl = $("#newsletterCount");
+  if (!listEl) return;
+  if (!r.ok || !r.d || !r.d.subscribers || r.d.subscribers.length === 0) {
+    listEl.innerHTML = "";
+    if (emptyEl) emptyEl.style.display = "block";
+    if (countEl) countEl.textContent = "0";
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = "none";
+  const subs = r.d.subscribers;
+  if (countEl) countEl.textContent = subs.length;
+
+  listEl.innerHTML = `
+    <div style="max-height:240px;overflow-y:auto;background:#fff;border:1px solid var(--line);padding:12px;">
+      ${subs.map((s) => `
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
+          <span>${esc(s.email)}</span>
+          <span style="color:var(--muted);">${new Date(s.createdAt).toLocaleDateString("fr-FR")}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+const expNewsBtn = $("#exportNewsletterBtn");
+if (expNewsBtn) {
+  expNewsBtn.addEventListener("click", async () => {
+    const r = await api("/api/admin/newsletter");
+    if (!r.ok || !r.d || !r.d.subscribers || r.d.subscribers.length === 0) {
+      alert("Aucun abonné à exporter.");
+      return;
+    }
+    const csv = "Email,Date d'inscription\n" + r.d.subscribers.map((s) => `"${s.email}","${new Date(s.createdAt).toISOString()}"`).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `newsletter-w6paris-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  });
+}
+
+const sendTestBtn = $("#sendTestEmailBtn");
+if (sendTestBtn) {
+  sendTestBtn.addEventListener("click", async () => {
+    const toInput = $("#testEmailTo");
+    const okEl = $("#testEmailOk");
+    const errEl = $("#testEmailErr");
+    okEl.style.display = "none";
+    errEl.style.display = "none";
+
+    const to = toInput ? toInput.value.trim() : "";
+    const original = sendTestBtn.textContent;
+    sendTestBtn.disabled = true;
+    sendTestBtn.textContent = "Envoi en cours…";
+
+    const r = await api("/api/admin/test-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to })
+    });
+
+    sendTestBtn.disabled = false;
+    sendTestBtn.textContent = original;
+
+    if (r.ok && r.d && r.d.ok) {
+      okEl.style.display = "block";
+      setTimeout(() => { okEl.style.display = "none"; }, 8000);
+    } else {
+      errEl.textContent = "Erreur : " + ((r.d && r.d.error) || "Impossible d'envoyer l'e-mail.");
+      errEl.style.display = "block";
+    }
+  });
+}

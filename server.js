@@ -14,6 +14,8 @@ const PRODUCTS_FILE = path.join(DATA_DIR, "products.json");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
 const PROMOS_FILE = path.join(DATA_DIR, "promos.json");
 const CUSTOMERS_FILE = path.join(DATA_DIR, "customers.json");
+const MESSAGES_FILE = path.join(DATA_DIR, "messages.json");
+const NEWSLETTER_FILE = path.join(DATA_DIR, "newsletter.json");
 const IMAGES_DIR = path.join(ROOT, "images");
 
 const STATUS_LABELS = {
@@ -153,10 +155,42 @@ const SESSION_TTL_MS = 1000 * 60 * 60 * 12; // 12h
 const sessions = new Map(); // token -> expiry (in-memory, logged out on restart)
 const customerSessions = new Map(); // token -> { email, expiry }
 
+/* Simple sliding-window in-memory rate limiter */
+function createRateLimiter(limit, windowMs) {
+  const hits = new Map();
+  return (req, res, next) => {
+    const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "ip";
+    const now = Date.now();
+    const windowStart = now - windowMs;
+    const timestamps = (hits.get(ip) || []).filter((t) => t > windowStart);
+    if (timestamps.length >= limit) {
+      return res.status(429).json({ error: "Trop de requêtes. Veuillez réessayer plus tard." });
+    }
+    timestamps.push(now);
+    hits.set(ip, timestamps);
+    next();
+  };
+}
+
+const adminLoginLimiter = createRateLimiter(5, 15 * 60 * 1000); // 5 attempts per 15 min
+const accountLimiter = createRateLimiter(10, 15 * 60 * 1000);   // 10 attempts per 15 min
+const orderLimiter = createRateLimiter(10, 15 * 60 * 1000);     // 10 orders per 15 min
+const contactLimiter = createRateLimiter(5, 15 * 60 * 1000);    // 5 inquiries per 15 min
+const newsletterLimiter = createRateLimiter(5, 15 * 60 * 1000); // 5 signups per 15 min
+
 const app = express();
 app.use(express.json());
 
-const BLOCKED = ["/data", "/node_modules", "/server.js", "/package.json", "/package-lock.json"];
+// Canonical domain redirect: redirect *.onrender.com to w6paris.com
+app.use((req, res, next) => {
+  const host = (req.headers.host || "").toLowerCase();
+  if (host.includes("onrender.com")) {
+    return res.redirect(301, "https://w6paris.com" + req.originalUrl);
+  }
+  next();
+});
+
+const BLOCKED = ["/data", "/node_modules", "/server.js", "/package.json", "/package-lock.json", "/.env", "/.git"];
 app.use((req, res, next) => {
   const p = req.path.toLowerCase();
   if (BLOCKED.some((b) => p === b || p.startsWith(b + "/"))) {
@@ -227,6 +261,38 @@ function saveCustomers(data) {
   const tmp = CUSTOMERS_FILE + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
   fs.renameSync(tmp, CUSTOMERS_FILE);
+}
+
+function loadMessages() {
+  try {
+    const arr = JSON.parse(fs.readFileSync(MESSAGES_FILE, "utf8"));
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMessages(data) {
+  ensureDataDir();
+  const tmp = MESSAGES_FILE + ".tmp";
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, MESSAGES_FILE);
+}
+
+function loadNewsletter() {
+  try {
+    const arr = JSON.parse(fs.readFileSync(NEWSLETTER_FILE, "utf8"));
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveNewsletter(data) {
+  ensureDataDir();
+  const tmp = NEWSLETTER_FILE + ".tmp";
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, NEWSLETTER_FILE);
 }
 
 function nextOrderNumber(orders) {
@@ -372,9 +438,16 @@ function hashPassword(password, salt) {
   return crypto.scryptSync(String(password), salt, 32).toString("hex");
 }
 
+function safeCompare(a, b) {
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 function verifyPassword(password) {
   const cfg = loadAdmin();
-  return hashPassword(password, cfg.salt) === cfg.hash;
+  return safeCompare(hashPassword(password, cfg.salt), cfg.hash);
 }
 
 function newToken() {
@@ -440,7 +513,7 @@ app.get("/api/shipping", (req, res) => {
   });
 });
 
-app.post("/api/orders", (req, res) => {
+app.post("/api/orders", orderLimiter, (req, res) => {
   const b = req.body || {};
   const customer = b.customer || {};
   const name = String(customer.name || "").trim();
@@ -555,12 +628,14 @@ const { Resend } = require("resend");
 function sendOrderEmail(order) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.log("[Email] RESEND_API_KEY not set, skipping email.");
+    console.log("[Email] RESEND_API_KEY not set in environment, skipping email.");
     return;
   }
 
   const resend = new Resend(apiKey);
-  const from = "W6 Paris <contact@w6paris.com>";
+  // Supports custom RESEND_FROM env var or verified sending domain (send.w6paris.com or w6paris.com)
+  const from = process.env.RESEND_FROM || "W6 Paris <contact@send.w6paris.com>";
+  const replyTo = process.env.RESEND_REPLY_TO || "contact@w6paris.com";
 
   const itemsHtml = order.items.map(i => `<li>${i.qty}x ${i.name} ${i.options ? `(${i.options})` : ""} — ${i.line.toFixed(2)}€</li>`).join("");
 
@@ -590,19 +665,25 @@ function sendOrderEmail(order) {
 
   resend.emails.send({
     from,
+    replyTo,
     to: order.customer.email,
     subject: `Confirmation de commande ${order.id} — W6 Paris`,
     html: customerHtml
-  }).then(res => console.log("[Email] Customer email sent:", res))
-    .catch(err => console.error("[Email] Customer email error:", err));
+  }).then(res => {
+    if (res.error) console.error("[Email] Customer email failed from Resend API:", res.error);
+    else console.log("[Email] Customer email sent successfully:", res.data);
+  }).catch(err => console.error("[Email] Customer email network error:", err));
 
   resend.emails.send({
     from,
+    replyTo,
     to: "contact@w6paris.com",
     subject: `[Nouvelle Commande] ${order.id} — ${order.total.toFixed(2)}€`,
     html: adminHtml
-  }).then(res => console.log("[Email] Admin email sent:", res))
-    .catch(err => console.error("[Email] Admin email error:", err));
+  }).then(res => {
+    if (res.error) console.error("[Email] Admin email failed from Resend API:", res.error);
+    else console.log("[Email] Admin email sent successfully:", res.data);
+  }).catch(err => console.error("[Email] Admin email network error:", err));
 }
 
 /* Public promo validation (for checkout preview) */
@@ -634,7 +715,7 @@ function sanitizeCustomer(c) {
   };
 }
 
-app.post("/api/account/register", (req, res) => {
+app.post("/api/account/register", accountLimiter, (req, res) => {
   const b = req.body || {};
   const email = String(b.email || "").toLowerCase().trim();
   const name = String(b.name || "").trim();
@@ -654,13 +735,13 @@ app.post("/api/account/register", (req, res) => {
   res.json({ ok: true, customer: sanitizeCustomer(customers[email]) });
 });
 
-app.post("/api/account/login", (req, res) => {
+app.post("/api/account/login", accountLimiter, (req, res) => {
   const b = req.body || {};
   const email = String(b.email || "").toLowerCase().trim();
   const password = String(b.password || "");
   const customers = loadCustomers();
   const c = customers[email];
-  if (!c || hashPassword(password, c.salt) !== c.hash) {
+  if (!c || !safeCompare(hashPassword(password, c.salt), c.hash)) {
     return res.status(401).json({ error: "invalid credentials" });
   }
   const token = newToken();
@@ -701,14 +782,15 @@ app.get("/api/account/me", (req, res) => {
   res.json({ ok: true, customer: sanitizeCustomer(c), orders });
 });
 
-/* Public order lookup (tracking) */
+/* Public order lookup (tracking) - requires order ID and matching customer email */
 app.get("/api/orders/:id", (req, res) => {
   const id = String(req.params.id || "").trim().toUpperCase();
   const email = String(req.query.email || "").trim().toLowerCase();
   if (!/^W6-\d{3,5}$/.test(id)) return res.status(400).json({ error: "invalid order id" });
+  if (!email) return res.status(400).json({ error: "E-mail requis pour consulter la commande" });
   const order = loadOrders().find((o) => o.id === id);
   if (!order) return res.status(404).json({ error: "not found" });
-  if (email && order.customer.email.toLowerCase() !== email) return res.status(403).json({ error: "forbidden" });
+  if (order.customer.email.toLowerCase() !== email) return res.status(403).json({ error: "forbidden" });
   res.json({
     id: order.id,
     createdAt: order.createdAt,
@@ -729,7 +811,7 @@ app.get("/api/orders/:id", (req, res) => {
 
 /* ---------------- admin API ---------------- */
 
-app.post("/api/admin/login", (req, res) => {
+app.post("/api/admin/login", adminLoginLimiter, (req, res) => {
   const { password } = req.body || {};
   if (!password || !verifyPassword(password)) {
     return res.status(401).json({ error: "invalid" });
@@ -1132,6 +1214,131 @@ app.delete("/api/admin/promos/:code", requireAuth, (req, res) => {
   if (next.length === promos.length) return res.status(404).json({ error: "unknown code" });
   savePromos(next);
   res.json({ ok: true });
+});
+
+/* ---------------- contact & newsletter API ---------------- */
+
+app.post("/api/contact", contactLimiter, async (req, res) => {
+  const b = req.body || {};
+  const name = String(b.name || "").trim();
+  const email = String(b.email || "").trim().toLowerCase();
+  const subject = String(b.subject || "").trim();
+  const message = String(b.message || "").trim();
+
+  if (!name || !message) {
+    return res.status(400).json({ error: "Nom et message requis." });
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return res.status(400).json({ error: "Adresse e-mail invalide." });
+  }
+
+  const messages = loadMessages();
+  const newMsg = {
+    id: "MSG-" + Date.now().toString(36).toUpperCase(),
+    createdAt: Date.now(),
+    name,
+    email,
+    subject: subject || "Question générale",
+    message,
+    read: false
+  };
+  messages.unshift(newMsg);
+  saveMessages(messages);
+
+  console.log(`[W6] Contact message received from ${name} (${email}) — ${subject}`);
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (apiKey) {
+    try {
+      const resend = new Resend(apiKey);
+      await resend.emails.send({
+        from: "W6 Paris <noreply@w6paris.com>",
+        to: "contact@w6paris.com",
+        replyTo: email,
+        subject: `[Contact W6] ${subject || "Nouveau message"} — ${name}`,
+        text: `Message de: ${name} (${email})\nSujet: ${subject}\n\n${message}`
+      });
+    } catch (e) {
+      console.error("[Email] Error forwarding contact email:", e.message);
+    }
+  }
+
+  res.json({ ok: true, message: "Votre message a bien été envoyé." });
+});
+
+app.post("/api/newsletter", newsletterLimiter, (req, res) => {
+  const b = req.body || {};
+  const email = String(b.email || "").trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return res.status(400).json({ error: "Adresse e-mail invalide." });
+  }
+  const subscribers = loadNewsletter();
+  const existing = subscribers.find((s) => s.email === email);
+  if (!existing) {
+    subscribers.push({ email, createdAt: Date.now() });
+    saveNewsletter(subscribers);
+  }
+  res.json({ ok: true, promoCode: "WELCOME10" });
+});
+
+app.get("/api/admin/messages", requireAuth, (req, res) => {
+  res.json({ ok: true, messages: loadMessages() });
+});
+
+app.delete("/api/admin/messages/:id", requireAuth, (req, res) => {
+  const id = req.params.id;
+  const messages = loadMessages().filter((m) => m.id !== id);
+  saveMessages(messages);
+  res.json({ ok: true });
+});
+
+app.put("/api/admin/messages/:id/read", requireAuth, (req, res) => {
+  const id = req.params.id;
+  const messages = loadMessages();
+  const m = messages.find((x) => x.id === id);
+  if (m) m.read = true;
+  saveMessages(messages);
+  res.json({ ok: true });
+});
+
+app.get("/api/admin/newsletter", requireAuth, (req, res) => {
+  res.json({ ok: true, subscribers: loadNewsletter() });
+});
+
+app.post("/api/admin/test-email", requireAuth, async (req, res) => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return res.status(400).json({ ok: false, error: "RESEND_API_KEY non configurée dans l'environnement Render." });
+  }
+  const to = (req.body && req.body.to) ? String(req.body.to).trim() : "contact@w6paris.com";
+  const from = process.env.RESEND_FROM || "W6 Paris <contact@send.w6paris.com>";
+  const replyTo = process.env.RESEND_REPLY_TO || "contact@w6paris.com";
+
+  try {
+    const resend = new Resend(apiKey);
+    const result = await resend.emails.send({
+      from,
+      replyTo,
+      to,
+      subject: "Test de confirmation d'e-mail — W6 Paris",
+      html: `
+        <div style="font-family:sans-serif; color:#1c1c1c; padding:20px;">
+          <h2 style="color:#9a7b3f;">Test d'envoi réussi !</h2>
+          <p>Le serveur W6 Paris parvient bien à envoyer des e-mails via Resend.</p>
+          <p style="font-size:12px; color:#777;">Envoyé depuis : ${from}<br>Répondre à : ${replyTo}</p>
+        </div>
+      `
+    });
+    if (result.error) {
+      console.error("[Email Test] Resend API error:", result.error);
+      return res.status(400).json({ ok: false, error: result.error.message || JSON.stringify(result.error), details: result.error });
+    }
+    console.log("[Email Test] Sent successfully:", result.data);
+    return res.json({ ok: true, data: result.data });
+  } catch (err) {
+    console.error("[Email Test] Exception:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 /* ---------------- admin page ---------------- */
