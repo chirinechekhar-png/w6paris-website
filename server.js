@@ -747,6 +747,114 @@ async function sendOrderEmail(order) {
   }).catch(err => console.error("[Email] Admin email network error:", err));
 }
 
+function sendShippingEmail(order) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !order.customer || !order.customer.email) return;
+
+  const resend = new Resend(apiKey);
+  const from = process.env.RESEND_FROM || "W6 Paris <contact@send.w6paris.com>";
+  const replyTo = process.env.RESEND_REPLY_TO || "contact@w6paris.com";
+
+  const trackingLink = `https://w6paris.com/tracking.html?id=${encodeURIComponent(order.id)}&email=${encodeURIComponent(order.customer.email)}`;
+  const carrierDirectLink = order.tracking ? `https://www.mondialrelay.fr/suivi-de-colis/?NumeroColis=${encodeURIComponent(order.tracking)}` : trackingLink;
+
+  const itemsHtml = (order.items || []).map(i => `<li>${i.qty}x ${i.name} ${i.options ? `(${i.options})` : ""}</li>`).join("");
+
+  const trackingBox = order.tracking ? `
+    <div style="background:#f9f8f6; border:1px solid #ede8e0; border-radius:8px; padding:20px; margin:24px 0; text-align:center;">
+      <p style="margin:0 0 6px; font-size:12px; color:#777; text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Numéro de suivi du colis</p>
+      <p style="margin:0 0 16px; font-size:22px; font-weight:bold; color:#1c1c1c; font-family:monospace; letter-spacing:0.08em;">${order.tracking}</p>
+      <a href="${carrierDirectLink}" target="_blank" style="display:inline-block; background:#9a7b3f; color:#ffffff; padding:13px 26px; text-decoration:none; border-radius:6px; font-size:14px; font-weight:500;">Suivre mon colis en direct →</a>
+    </div>
+  ` : `
+    <div style="background:#f9f8f6; border:1px solid #ede8e0; border-radius:8px; padding:20px; margin:24px 0; text-align:center;">
+      <p style="margin:0 0 14px; font-size:14px; color:#444;">Votre colis a été remis au transporteur et est en cours d'acheminement.</p>
+      <a href="${trackingLink}" target="_blank" style="display:inline-block; background:#9a7b3f; color:#ffffff; padding:13px 26px; text-decoration:none; border-radius:6px; font-size:14px; font-weight:500;">Consulter ma commande sur W6 Paris →</a>
+    </div>
+  `;
+
+  const html = `
+    <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:24px; line-height:1.6;">
+      <h1 style="color:#1c1c1c; font-size:24px; font-weight:normal; margin-bottom:8px; letter-spacing:0.04em;">W6 Paris</h1>
+      <h2 style="color:#9a7b3f; margin-top:0; font-size:20px;">Bonne nouvelle, votre commande a été expédiée ! 📦</h2>
+      <p>Bonjour <strong>${order.customer.name}</strong>,</p>
+      <p>Votre commande <strong>${order.id}</strong> a été soigneusement préparée et vient d'être expédiée.</p>
+      
+      ${trackingBox}
+
+      <div style="border-top:1px solid #eee; padding-top:16px; margin-top:20px;">
+        <h3 style="font-size:15px; margin-bottom:8px; color:#1c1c1c;">Rappel des articles expédiés :</h3>
+        <ul style="padding-left:20px; color:#555; margin-bottom:16px;">${itemsHtml}</ul>
+      </div>
+
+      <p style="font-size:13px; color:#666; margin-top:24px;">
+        Une question sur votre livraison ? Répondez simplement à cet e-mail ou écrivez-nous à <a href="mailto:contact@w6paris.com" style="color:#9a7b3f;">contact@w6paris.com</a>.
+      </p>
+      
+      <p style="margin-top:30px; font-size:12px; color:#999; border-top:1px solid #eee; padding-top:16px;">
+        W6 Paris — Maison de parfum d'intérieur<br>
+        12 Rue Boulard, 75014 Paris · contact@w6paris.com
+      </p>
+    </div>
+  `;
+
+  resend.emails.send({
+    from,
+    replyTo,
+    to: order.customer.email,
+    subject: `Votre commande ${order.id} a été expédiée ! 📦 — W6 Paris`,
+    html
+  }).then(res => {
+    if (res.error) console.error("[Email] Shipping notification failed:", res.error);
+    else console.log(`[Email] Shipping email sent to ${order.customer.email} for order ${order.id}`);
+  }).catch(err => console.error("[Email] Shipping email error:", err));
+}
+
+function sendReadyForPickupEmail(order) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !order.customer || !order.customer.email) return;
+
+  const resend = new Resend(apiKey);
+  const from = process.env.RESEND_FROM || "W6 Paris <contact@send.w6paris.com>";
+  const replyTo = process.env.RESEND_REPLY_TO || "contact@w6paris.com";
+
+  const pickupDetails = order.pickup ? `<p style="margin:4px 0; color:#555;"><strong>Date & créneau demandés :</strong> ${order.pickup.date} à ${order.pickup.time}</p>` : "";
+
+  const html = `
+    <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:24px; line-height:1.6;">
+      <h1 style="color:#1c1c1c; font-size:24px; font-weight:normal; margin-bottom:8px; letter-spacing:0.04em;">W6 Paris</h1>
+      <h2 style="color:#9a7b3f; margin-top:0; font-size:20px;">Votre commande est prête au showroom ! ✨</h2>
+      <p>Bonjour <strong>${order.customer.name}</strong>,</p>
+      <p>Votre commande <strong>${order.id}</strong> a bien été préparée et vous attend dans notre boutique-showroom.</p>
+
+      <div style="background:#f9f8f6; border:1px solid #ede8e0; border-radius:8px; padding:20px; margin:24px 0;">
+        <h3 style="margin-top:0; color:#1c1c1c; font-size:16px;">📍 Adresse de retrait</h3>
+        <p style="margin:4px 0; font-size:15px; font-weight:600; color:#1c1c1c;">W6 Paris — Boutique Showroom</p>
+        <p style="margin:4px 0; color:#555;">12 Rue Boulard, 75014 Paris</p>
+        <p style="margin:4px 0; color:#555;"><strong>Horaires :</strong> Du lundi au samedi, de 10h à 19h</p>
+        ${pickupDetails}
+      </div>
+
+      <p style="font-size:13px; color:#666;">Il vous suffira d'indiquer votre nom et le numéro de commande <strong>${order.id}</strong> lors de votre venue.</p>
+      
+      <p style="margin-top:30px; font-size:12px; color:#999; border-top:1px solid #eee; padding-top:16px;">
+        W6 Paris — 12 Rue Boulard, 75014 Paris · contact@w6paris.com
+      </p>
+    </div>
+  `;
+
+  resend.emails.send({
+    from,
+    replyTo,
+    to: order.customer.email,
+    subject: `Votre commande ${order.id} est prête au showroom ! ✨ — W6 Paris`,
+    html
+  }).then(res => {
+    if (res.error) console.error("[Email] Pickup notification failed:", res.error);
+    else console.log(`[Email] Ready-for-pickup email sent to ${order.customer.email} for order ${order.id}`);
+  }).catch(err => console.error("[Email] Ready-for-pickup email error:", err));
+}
+
 /* Finalize an order upon verified Stripe payment (idempotent) */
 async function finalizeOrder(sessionId) {
   if (!sessionId) return null;
@@ -1386,7 +1494,11 @@ app.put("/api/admin/orders/:id", requireAuth, (req, res) => {
   const orders = loadOrders();
   const order = orders.find((o) => o.id === id);
   if (!order) return res.status(404).json({ error: "unknown order" });
+
   const { status, tracking } = req.body || {};
+  const prevStatus = order.status;
+  const prevTracking = order.tracking || "";
+
   if (status) {
     if (!STATUS_LABELS[status]) return res.status(400).json({ error: "invalid status" });
     order.status = status;
@@ -1396,6 +1508,17 @@ app.put("/api/admin/orders/:id", requireAuth, (req, res) => {
   }
   order.updatedAt = Date.now();
   saveOrders(orders);
+
+  // Auto-send email notifications to customer upon shipping or ready-for-pickup
+  const isNowShipped = order.status === "expediee" && (prevStatus !== "expediee" || (order.tracking && !prevTracking));
+  const isNowReady = order.status === "prete" && prevStatus !== "prete";
+
+  if (isNowShipped) {
+    sendShippingEmail(order);
+  } else if (isNowReady) {
+    sendReadyForPickupEmail(order);
+  }
+
   res.json({ ok: true });
 });
 
