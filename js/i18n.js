@@ -216,19 +216,21 @@ const I18N = {
       q6: "Le parfum offert est-il vraiment gratuit ?",
       a6: "Oui. Chaque diffuseur est accompagné d'une fragrance de votre choix, offerte. Le Pack Duo inclut les sept fragrances de la collection en format 10 ml, offertes.",
       q7: "Puis-je retourner un produit ?",
-      a7: "Oui. Vous disposez de 14 jours après réception pour retourner un produit dans son état d'origine et obtenir un remboursement."
+      a7: "Oui. Vous disposez de 14 jours après réception pour retourner un produit dans son état d'origine et obtenir un remboursement.",
+      q8: "Vers quels pays assurez-vous la livraison ?",
+      a8: "Nous expédions dans 19 pays d'Europe : France métropolitaine, Belgique, Luxembourg, Pays-Bas, Allemagne, Espagne, Italie, Portugal, Pologne, Autriche, Irlande, Danemark, Suède, Finlande, République Tchèque, Slovaquie, Hongrie, Roumanie et Grèce. Vous pouvez choisir entre la livraison en Point Relais ou directement à domicile lors de votre commande. La livraison est offerte dès 150 € d'achat."
     },
     shipping: {
       title: "Livraison",
-      sub: "Une livraison soignée dans toute l'Union Européenne.",
-      h1: "Zones de livraison",
-      p1: "Nous expédions dans tous les pays de l'Union Européenne : France, Belgique, Luxembourg, Allemagne, Espagne, Italie, Pays-Bas et tous les autres États membres.",
-      h2: "Délais",
-      p2: "Les commandes sont préparées et expédiées sous 24 à 48 heures ouvrées. Délai de livraison estimé : 2 à 5 jours ouvrés selon votre destination.",
-      h3: "Frais de port",
-      p3: "Les frais de port sont calculés au moment de la commande en fonction de la destination. La livraison est offerte à partir d'un certain montant d'achat, selon la campagne en cours.",
-      h4: "Suivi de commande",
-      p4: "Dès l'expédition, un e-mail de confirmation accompagné d'un numéro de suivi vous est envoyé."
+      sub: "Une livraison soignée dans 19 pays d'Europe.",
+      h1: "Zones de livraison (19 pays)",
+      p1: "Nous expédions nos créations dans 19 pays européens : France métropolitaine, Belgique, Luxembourg, Pays-Bas, Allemagne, Espagne, Italie, Portugal, Pologne, Autriche, Irlande, Danemark, Suède, Finlande, République Tchèque, Slovaquie, Hongrie, Roumanie et Grèce.",
+      h2: "Délais de préparation & d'acheminement",
+      p2: "Les commandes sont préparées et expédiées sous 24 à 48 heures ouvrées. Le délai moyen d'acheminement est de 2 à 5 jours ouvrés selon la destination.",
+      h3: "Frais de port & Livraison offerte",
+      p3: "Les frais d'expédition sont calculés automatiquement au panier selon le poids du colis, la destination et le mode choisi (Point Relais ou Domicile). La livraison est offerte dès 150 € d'achat.",
+      h4: "Suivi en direct",
+      p4: "Dès l'expédition de votre commande, vous recevez un e-mail avec votre numéro de suivi pour suivre l'acheminement de votre colis en temps réel."
     },
     policy: {
       refundTitle: "Politique de remboursement",
@@ -456,19 +458,21 @@ const I18N = {
       q6: "Is the free fragrance really free?",
       a6: "Yes. Every diffuser comes with a fragrance of your choice, free of charge. The Duo Pack includes all seven fragrances of the collection in 10 ml, free.",
       q7: "Can I return a product?",
-      a7: "Yes. You have 14 days after receipt to return a product in its original condition and obtain a refund."
+      a7: "Yes. You have 14 days after receipt to return a product in its original condition and obtain a refund.",
+      q8: "Which countries do you deliver to?",
+      a8: "We currently deliver to 19 European countries: Metropolitan France, Belgium, Luxembourg, the Netherlands, Germany, Spain, Italy, Portugal, Poland, Austria, Ireland, Denmark, Sweden, Finland, the Czech Republic, Slovakia, Hungary, Romania, and Greece. You can choose between pickup point delivery or home delivery at checkout. Free shipping is automatically applied on orders over €150."
     },
     shipping: {
       title: "Shipping",
-      sub: "Careful delivery across the European Union.",
-      h1: "Delivery zones",
-      p1: "We ship to every country in the European Union: France, Belgium, Luxembourg, Germany, Spain, Italy, the Netherlands and all other member states.",
-      h2: "Timings",
-      p2: "Orders are prepared and shipped within 24 to 48 working hours. Estimated delivery time: 2 to 5 working days depending on your destination.",
-      h3: "Shipping costs",
-      p3: "Shipping costs are calculated at checkout depending on the destination. Delivery is free above a certain order amount, depending on the current campaign.",
-      h4: "Order tracking",
-      p4: "As soon as your order ships, you receive a confirmation email with a tracking number."
+      sub: "Careful delivery across 19 European countries.",
+      h1: "Delivery Zones (19 Countries)",
+      p1: "We ship our creations to 19 European countries: France, Belgium, Luxembourg, the Netherlands, Germany, Spain, Italy, Portugal, Poland, Austria, Ireland, Denmark, Sweden, Finland, Czech Republic, Slovakia, Hungary, Romania, and Greece.",
+      h2: "Preparation & Transit Times",
+      p2: "Orders are prepared and dispatched within 24 to 48 business hours. Estimated delivery time is 2 to 5 business days depending on destination.",
+      h3: "Shipping Costs & Free Delivery",
+      p3: "Shipping fees are calculated automatically at checkout based on package weight, country, and selected method (Pickup Point or Home). Free shipping is offered on orders over €150.",
+      h4: "Live Order Tracking",
+      p4: "As soon as your parcel ships, you receive an automated confirmation email with your tracking number to monitor delivery in real time."
     },
     policy: {
       refundTitle: "Refund policy",

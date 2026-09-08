@@ -31,9 +31,10 @@
 <script>
   window.initPage = function () {
     var html = "";
-    for (var i = 1; i <= 7; i++) {
+    for (var i = 1; i <= 15; i++) {
       var q = t("faq.q" + i);
       var a = t("faq.a" + i);
+      if (!q || q === "faq.q" + i) break;
       html += '<div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">' + q + '</button><div class="acc-body"><div class="acc-body-inner">' + a + '</div></div></div>';
     }
     document.getElementById("faqList").innerHTML = html;

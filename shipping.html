@@ -31,25 +31,75 @@
 <script>
   var SHIP = {
     fr: [
-      ["Zones de livraison", "Nous expédions dans toute l'Union Européenne : France, Belgique, Luxembourg, Allemagne, Espagne, Italie, Pays-Bas et tous les autres États membres."],
-      ["Modes de livraison", "Expédition en Point Relais ou à domicile via Mondial Relay. Les frais de port sont calculés au moment de la commande en fonction du poids du colis, de la destination et du mode choisi."],
-      ["Délais", "Les commandes sont préparées et expédiées sous 24 à 48 heures ouvrées. Délai de livraison estimé : 2 à 5 jours ouvrés selon votre destination."],
-      ["Frais de port", "Les frais de port dépendent du poids du colis et de la destination. La livraison est offerte pour les diffuseurs et le Pack Duo en France métropolitaine, et dès un certain montant d'achat selon la campagne en cours."],
-      ["Retrait en boutique", "Commandez en ligne et récupérez votre commande gratuitement dans notre boutique-showroom : 12 Rue Boulard, 75014 Paris, du lundi au samedi de 10h à 19h. Une expérience sur place pour sentir nos fragrances avant de repartir."],
-      ["Suivi de commande", "Suivez votre commande à tout moment via la page Suivi, avec le numéro de suivi Mondial Relay indiqué dès l'expédition."]
+      ["Zones de livraison (19 pays d'Europe)",
+       "<p>Nous expédions l'ensemble de nos créations dans <strong>19 pays européens</strong> :</p>" +
+       "<ul>" +
+       "<li><strong>France métropolitaine</strong></li>" +
+       "<li><strong>Belgique & Luxembourg</strong></li>" +
+       "<li><strong>Pays-Bas</strong></li>" +
+       "<li><strong>Espagne, Portugal & Italie</strong></li>" +
+       "<li><strong>Allemagne, Autriche & Irlande</strong></li>" +
+       "<li><strong>Pologne, Danemark, Suède & Finlande</strong></li>" +
+       "<li><strong>République Tchèque, Slovaquie, Hongrie, Roumanie & Grèce</strong></li>" +
+       "</ul>" +
+       "<p>Pour toute demande spécifique ou livraison vers une autre destination (Suisse, Royaume-Uni, international), contactez-nous à <a href=\"mailto:contact@w6paris.com\">contact@w6paris.com</a>.</p>"],
+      ["Modes de livraison",
+       "<p>Deux modes de livraison sécurisés et suivis sont proposés lors de votre commande :</p>" +
+       "<ul>" +
+       "<li><strong>Livraison en Point Relais</strong> : retirez votre colis dans le commerce ou locker de votre choix en toute flexibilité.</li>" +
+       "<li><strong>Livraison à domicile</strong> : remise directe de votre colis à votre adresse personnelle ou professionnelle.</li>" +
+       "</ul>" +
+       "<p>Tous nos colis sont préparés avec le plus grand soin dans des emballages renforcés garantissant l'intégrité de vos flacons et diffuseurs.</p>"],
+      ["Délais de préparation & d'acheminement",
+       "<p>Vos commandes sont préparées et expédiées sous <strong>24 à 48 heures ouvrées</strong>.</p>" +
+       "<p>Le délai moyen d'acheminement est de <strong>2 à 5 jours ouvrés</strong> selon le pays de destination.</p>"],
+      ["Frais de port & Livraison offerte",
+       "<p>Les frais d'expédition sont calculés automatiquement au moment de la commande en fonction du poids total et de votre pays de destination.</p>" +
+       "<p><strong>Livraison offerte dès 150 € d'achat</strong> pour l'ensemble des 19 pays desservis.</p>"],
+      ["Suivi de votre commande",
+       "<p>Dès l'expédition de votre commande, vous recevez un e-mail de confirmation avec votre <strong>numéro de suivi</strong> et un lien direct pour suivre l'acheminement en temps réel.</p>" +
+       "<p>Vous pouvez également consulter l'avancement de votre commande à tout moment depuis notre page <a href=\"tracking.html\">Suivi de commande</a>.</p>"],
+      ["Retrait gratuit en boutique · Showroom",
+       "<p>Vous pouvez également retirer votre commande gratuitement au sein de notre boutique-showroom :</p>" +
+       "<p><strong>12 Rue Boulard, 75014 Paris</strong> — Du lundi au samedi, de 10h à 19h.</p>"]
     ],
     en: [
-      ["Delivery zones", "We ship to every country in the European Union: France, Belgium, Luxembourg, Germany, Spain, Italy, the Netherlands and all other member states."],
-      ["Delivery methods", "Delivery to a pickup point or to your home via Mondial Relay. Shipping costs are calculated at checkout based on the parcel weight, destination and chosen method."],
-      ["Timings", "Orders are prepared and shipped within 24 to 48 working hours. Estimated delivery time: 2 to 5 working days depending on your destination."],
-      ["Shipping costs", "Shipping costs depend on the parcel weight and the destination. Delivery is free for diffusers and the Duo Pack in metropolitan France, and free above a certain order amount depending on the current campaign."],
-      ["Pick up in store", "Order online and collect your order free of charge at our boutique-showroom: 12 Rue Boulard, 75014 Paris, Monday to Saturday from 10am to 7pm. An in-store experience to smell our fragrances before you leave."],
-      ["Order tracking", "Track your order at any time via the Tracking page, with the Mondial Relay tracking number shown as soon as your parcel ships."]
+      ["Delivery Zones (19 European Countries)",
+       "<p>We deliver all our creations to <strong>19 European countries</strong>:</p>" +
+       "<ul>" +
+       "<li><strong>Metropolitan France</strong></li>" +
+       "<li><strong>Belgium & Luxembourg</strong></li>" +
+       "<li><strong>The Netherlands</strong></li>" +
+       "<li><strong>Spain, Portugal & Italy</strong></li>" +
+       "<li><strong>Germany, Austria & Ireland</strong></li>" +
+       "<li><strong>Poland, Denmark, Sweden & Finland</strong></li>" +
+       "<li><strong>Czech Republic, Slovakia, Hungary, Romania & Greece</strong></li>" +
+       "</ul>" +
+       "<p>For specific inquiries or other international destinations (Switzerland, UK, international), please contact us at <a href=\"mailto:contact@w6paris.com\">contact@w6paris.com</a>.</p>"],
+      ["Delivery Methods",
+       "<p>Two secure and tracked delivery options are available at checkout:</p>" +
+       "<ul>" +
+       "<li><strong>Pickup Point Delivery</strong>: collect your package at a local partner shop or parcel locker at your convenience.</li>" +
+       "<li><strong>Home Delivery</strong>: direct tracked delivery to your home or office.</li>" +
+       "</ul>" +
+       "<p>All parcels are carefully packed in protective luxury materials to guarantee safe delivery.</p>"],
+      ["Handling & Delivery Times",
+       "<p>Orders are prepared and dispatched within <strong>24 to 48 business hours</strong>.</p>" +
+       "<p>Estimated transit time is <strong>2 to 5 business days</strong> depending on the destination country.</p>"],
+      ["Shipping Costs & Free Delivery",
+       "<p>Shipping costs are calculated automatically at checkout based on the parcel weight and destination.</p>" +
+       "<p><strong>Free shipping on orders over €150</strong> across all 19 supported countries.</p>"],
+      ["Real-Time Order Tracking",
+       "<p>As soon as your parcel ships, you will receive a confirmation email with your <strong>tracking number</strong> and a direct tracking link.</p>" +
+       "<p>You can also track your order status anytime on our <a href=\"tracking.html\">Tracking page</a>.</p>"],
+      ["Free In-Store Pickup · Showroom",
+       "<p>You can also choose free pickup at our Parisian showroom:</p>" +
+       "<p><strong>12 Rue Boulard, 75014 Paris</strong> — Monday to Saturday, 10am to 7pm.</p>"]
     ]
   };
   window.initPage = function () {
     document.getElementById("shippingContent").innerHTML = SHIP[LANG]
-      .map(function (s) { return "<h2>" + s[0] + "</h2><p>" + s[1] + "</p>"; })
+      .map(function (s) { return "<h2>" + s[0] + "</h2><div>" + s[1] + "</div>"; })
       .join("");
   };
 </script>
