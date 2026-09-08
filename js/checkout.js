@@ -98,16 +98,26 @@
       .then(function (q) {
         var fee = (method === "home" ? q.home : q.relay).fee;
         var free = q.free || q.freeType;
-        if (shipEl) shipEl.textContent = formatPrice(fee);
-        totalEl.textContent = formatPrice(sub + fee - promoState.discount);
+        if (shipEl) shipEl.textContent = free ? t("checkout.freeShip") : formatPrice(fee);
+        totalEl.textContent = formatPrice(sub + (free ? 0 : fee) - promoState.discount);
         var freeEl = $("coFreeShip");
         if (freeEl) {
           freeEl.style.display = free ? "block" : "none";
           freeEl.textContent = t("checkout.freeShip");
         }
+        var relayBtn = document.querySelector('#coMethod button[data-method="relay"]');
+        var homeBtn = document.querySelector('#coMethod button[data-method="home"]');
+        if (relayBtn && q.relay) {
+          var rPrice = free ? t("checkout.freeShip") : formatPrice(q.relay.fee);
+          relayBtn.textContent = t("checkout.deliveryRelay") + " · " + rPrice;
+        }
+        if (homeBtn && q.home) {
+          var hPrice = free ? t("checkout.freeShip") : formatPrice(q.home.fee);
+          homeBtn.textContent = t("checkout.deliveryHome") + " · " + hPrice;
+        }
         if (methodFeeEl) {
           methodFeeEl.style.display = "block";
-          methodFeeEl.textContent = weight > 0 ? (Math.round(weight * 1000) / 1000 + " kg") : "";
+          methodFeeEl.textContent = "Colis préparé avec soin · Suivi par e-mail dès expédition";
         }
       })
       .catch(function () { /* server unavailable -> shipping 0 */ });
