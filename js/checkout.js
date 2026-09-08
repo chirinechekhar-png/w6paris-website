@@ -219,38 +219,81 @@
     if (err) { showError(err); return; }
 
     var btn = document.querySelector('#coForm button[type="submit"]');
-    var original = btn.textContent;
+    var original = btn.innerHTML;
     btn.disabled = true;
-    btn.textContent = "…";
+    btn.textContent = "Redirection vers le paiement sécurisé…";
     $("coError").style.display = "none";
 
-    fetch("/api/orders", {
+    fetch("/api/checkout/create-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
       .then(function (r) {
-        if (!r.ok) return r.json().then(function (j) { throw new Error(j.error || "HTTP " + r.status); });
+        if (!r.ok) {
+          return r.json().then(function (j) {
+            throw new Error(j.error || "HTTP " + r.status);
+          });
+        }
         return r.json();
       })
       .then(function (res) {
-        localStorage.removeItem(CART_KEY);
-        cart = [];
-        updateCartUI();
-        renderCart();
-        $("coOrderId").textContent = res.id;
-        $("coLayout").style.display = "none";
-        $("coSuccess").style.display = "block";
-        window.scrollTo(0, 0);
+        if (res.url) {
+          window.location.href = res.url;
+        } else {
+          throw new Error("No checkout URL returned");
+        }
       })
       .catch(function (e) {
         btn.disabled = false;
-        btn.textContent = original;
+        btn.innerHTML = original;
         showError(t("checkout.errSubmit") + " (" + e.message + ")");
       });
   }
 
+  function handleReturnFromStripe() {
+    var params = new URLSearchParams(window.location.search);
+    var sessionId = params.get("session_id");
+    var canceled = params.get("canceled");
+
+    if (canceled) {
+      var coCanceled = $("coCanceled");
+      if (coCanceled) {
+        coCanceled.textContent = t("checkout.canceledNotice") || "Paiement non finalisé. Vos articles sont conservés.";
+        coCanceled.style.display = "block";
+      }
+    }
+
+    if (sessionId) {
+      localStorage.removeItem(CART_KEY);
+      cart = [];
+      if (typeof updateCartUI === "function") updateCartUI();
+
+      $("coLayout").style.display = "none";
+      $("coSuccess").style.display = "block";
+      $("coOrderId").textContent = "Confirmation en cours…";
+
+      fetch("/api/checkout/session/" + encodeURIComponent(sessionId))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.order) {
+            $("coOrderId").textContent = data.order.id;
+          } else {
+            $("coOrderId").textContent = "Paiement validé";
+          }
+        })
+        .catch(function () {
+          $("coOrderId").textContent = "Paiement validé";
+        });
+      return true;
+    }
+    return false;
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    var isConfirmed = handleReturnFromStripe();
+    if (isConfirmed) return;
+
     renderSummary();
     document.querySelectorAll("#coFulfillment button").forEach(function (b) {
       b.addEventListener("click", function () { setFulfillment(b.dataset.full); });

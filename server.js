@@ -16,6 +16,7 @@ const PROMOS_FILE = path.join(DATA_DIR, "promos.json");
 const CUSTOMERS_FILE = path.join(DATA_DIR, "customers.json");
 const MESSAGES_FILE = path.join(DATA_DIR, "messages.json");
 const NEWSLETTER_FILE = path.join(DATA_DIR, "newsletter.json");
+const PENDING_CHECKOUTS_FILE = path.join(DATA_DIR, "pending_checkouts.json");
 const IMAGES_DIR = path.join(ROOT, "images");
 
 const STATUS_LABELS = {
@@ -179,12 +180,18 @@ const contactLimiter = createRateLimiter(5, 15 * 60 * 1000);    // 5 inquiries p
 const newsletterLimiter = createRateLimiter(5, 15 * 60 * 1000); // 5 signups per 15 min
 
 const app = express();
+
+// Stripe webhook requires the raw body buffer for signature verification
+app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), (req, res) => {
+  handleStripeWebhook(req, res);
+});
+
 app.use(express.json());
 
-// Canonical domain redirect: redirect *.onrender.com to w6paris.com
+// Canonical domain redirect: redirect *.onrender.com to w6paris.com (GET/HEAD only)
 app.use((req, res, next) => {
   const host = (req.headers.host || "").toLowerCase();
-  if (host.includes("onrender.com")) {
+  if (host.includes("onrender.com") && (req.method === "GET" || req.method === "HEAD")) {
     return res.redirect(301, "https://w6paris.com" + req.originalUrl);
   }
   next();
@@ -245,6 +252,36 @@ function saveOrders(data) {
   const tmp = ORDERS_FILE + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
   fs.renameSync(tmp, ORDERS_FILE);
+}
+
+function loadPendingCheckouts() {
+  try {
+    const obj = JSON.parse(fs.readFileSync(PENDING_CHECKOUTS_FILE, "utf8"));
+    return obj && typeof obj === "object" ? obj : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePendingCheckout(id, data) {
+  ensureDataDir();
+  const all = loadPendingCheckouts();
+  all[id] = data;
+  const tmp = PENDING_CHECKOUTS_FILE + ".tmp";
+  fs.writeFileSync(tmp, JSON.stringify(all, null, 2));
+  fs.renameSync(tmp, PENDING_CHECKOUTS_FILE);
+}
+
+function deletePendingCheckout(id) {
+  try {
+    const all = loadPendingCheckouts();
+    if (all[id]) {
+      delete all[id];
+      const tmp = PENDING_CHECKOUTS_FILE + ".tmp";
+      fs.writeFileSync(tmp, JSON.stringify(all, null, 2));
+      fs.renameSync(tmp, PENDING_CHECKOUTS_FILE);
+    }
+  } catch {}
 }
 
 function loadCustomers() {
@@ -625,7 +662,7 @@ app.post("/api/orders", orderLimiter, (req, res) => {
 
 const { Resend } = require("resend");
 
-function sendOrderEmail(order) {
+async function sendOrderEmail(order) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.log("[Email] RESEND_API_KEY not set in environment, skipping email.");
@@ -637,19 +674,36 @@ function sendOrderEmail(order) {
   const from = process.env.RESEND_FROM || "W6 Paris <contact@send.w6paris.com>";
   const replyTo = process.env.RESEND_REPLY_TO || "contact@w6paris.com";
 
+  let pdfAttachment = null;
+  try {
+    const pdfBuf = await buildInvoicePdf(order);
+    if (pdfBuf) {
+      pdfAttachment = {
+        filename: `facture-${order.id}.pdf`,
+        content: pdfBuf.toString("base64")
+      };
+    }
+  } catch (err) {
+    console.error("[Email] Could not generate invoice PDF attachment:", err.message);
+  }
+
   const itemsHtml = order.items.map(i => `<li>${i.qty}x ${i.name} ${i.options ? `(${i.options})` : ""} — ${i.line.toFixed(2)}€</li>`).join("");
 
   const customerHtml = `
-    <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:20px;">
-      <h2 style="color:#9a7b3f;">Merci pour votre commande, ${order.customer.name} !</h2>
+    <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:20px; line-height:1.6;">
+      <h2 style="color:#9a7b3f; margin-bottom:10px;">Merci pour votre commande, ${order.customer.name} !</h2>
       <p>Votre commande <strong>${order.id}</strong> a bien été enregistrée.</p>
-      <h3>Récapitulatif :</h3>
-      <ul>${itemsHtml}</ul>
-      <p><strong>Sous-total :</strong> ${order.subtotal.toFixed(2)}€</p>
-      <p><strong>Livraison :</strong> ${order.shipping.toFixed(2)}€</p>
-      ${order.discount > 0 ? `<p><strong>Remise (${order.promoCode}) :</strong> -${order.discount.toFixed(2)}€</p>` : ""}
-      <p><strong>Total :</strong> ${order.total.toFixed(2)}€</p>
-      <p style="margin-top:30px; font-size:12px; color:#6b6b6b;">W6 Paris — 12 Rue Boulard, 75014 Paris</p>
+      <p>Vous trouverez votre facture officielle en pièce jointe de cet e-mail.</p>
+      <div style="background:#f9f9f9; border:1px solid #eee; padding:15px; border-radius:6px; margin:20px 0;">
+        <h3 style="margin-top:0; color:#1c1c1c;">Récapitulatif :</h3>
+        <ul style="padding-left:20px; margin-bottom:15px;">${itemsHtml}</ul>
+        <p style="margin:4px 0;"><strong>Sous-total :</strong> ${order.subtotal.toFixed(2)}€</p>
+        <p style="margin:4px 0;"><strong>Livraison :</strong> ${order.shipping.toFixed(2)}€</p>
+        ${order.discount > 0 ? `<p style="margin:4px 0; color:#9a7b3f;"><strong>Remise (${order.promoCode}) :</strong> -${order.discount.toFixed(2)}€</p>` : ""}
+        <p style="margin:10px 0 0 0; font-size:16px;"><strong>Total payé :</strong> ${order.total.toFixed(2)}€</p>
+      </div>
+      <p style="font-size:13px; color:#555;">Nous préparons soigneusement votre commande. Un e-mail avec le numéro de suivi vous sera adressé dès son expédition.</p>
+      <p style="margin-top:30px; font-size:12px; color:#888; border-top:1px solid #eee; padding-top:15px;">W6 Paris — 12 Rue Boulard, 75014 Paris · contact@w6paris.com</p>
     </div>
   `;
 
@@ -657,21 +711,28 @@ function sendOrderEmail(order) {
     <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:20px;">
       <h2>Nouvelle commande ${order.id} (${order.total.toFixed(2)}€)</h2>
       <p><strong>Client :</strong> ${order.customer.name} (${order.customer.email}, ${order.customer.phone || "pas de tél"})</p>
-      <p><strong>Mode :</strong> ${order.fulfillment}</p>
+      <p><strong>Paiement :</strong> ${order.paymentStatus || "confirmé"}</p>
+      <p><strong>Mode :</strong> ${order.fulfillment}${order.fulfillment === "delivery" ? ` (${order.deliveryMethod})` : ""}</p>
       <h3>Articles :</h3>
       <ul>${itemsHtml}</ul>
+      <p><strong>Total :</strong> ${order.total.toFixed(2)}€</p>
     </div>
   `;
 
-  resend.emails.send({
+  const customerEmailPayload = {
     from,
     replyTo,
     to: order.customer.email,
     subject: `Confirmation de commande ${order.id} — W6 Paris`,
     html: customerHtml
-  }).then(res => {
+  };
+  if (pdfAttachment) {
+    customerEmailPayload.attachments = [pdfAttachment];
+  }
+
+  resend.emails.send(customerEmailPayload).then(res => {
     if (res.error) console.error("[Email] Customer email failed from Resend API:", res.error);
-    else console.log("[Email] Customer email sent successfully:", res.data);
+    else console.log("[Email] Customer email sent successfully with invoice:", res.data);
   }).catch(err => console.error("[Email] Customer email network error:", err));
 
   resend.emails.send({
@@ -685,6 +746,309 @@ function sendOrderEmail(order) {
     else console.log("[Email] Admin email sent successfully:", res.data);
   }).catch(err => console.error("[Email] Admin email network error:", err));
 }
+
+/* Finalize an order upon verified Stripe payment (idempotent) */
+async function finalizeOrder(sessionId) {
+  if (!sessionId) return null;
+  const orders = loadOrders();
+  const existing = orders.find((o) => o.stripeSessionId === sessionId);
+  if (existing) return existing;
+
+  const pending = loadPendingCheckouts()[sessionId];
+  if (!pending) {
+    console.warn("[Stripe] Pending checkout not found for session:", sessionId);
+    return null;
+  }
+
+  const products = loadProducts();
+  const stockOk = decrementStock(products, pending.items);
+  if (!stockOk) {
+    console.warn("[Stripe] Stock decrement warning during finalization for session:", sessionId);
+  }
+  saveProducts(products);
+
+  if (pending.promoCode) {
+    const promos = loadPromos();
+    const target = promos.find((p) => p.code === pending.promoCode);
+    if (target) {
+      target.uses = (target.uses || 0) + 1;
+      savePromos(promos);
+    }
+  }
+
+  const number = nextOrderNumber(orders);
+  const order = {
+    id: "W6-" + String(number).padStart(4, "0"),
+    number,
+    createdAt: Date.now(),
+    customer: pending.customer,
+    fulfillment: pending.fulfillment,
+    deliveryMethod: pending.deliveryMethod,
+    weightKg: pending.weightKg,
+    address: pending.address,
+    pickup: pending.pickup,
+    items: pending.items,
+    subtotal: pending.subtotal,
+    shipping: pending.shipping,
+    discount: pending.discount,
+    promoCode: pending.promoCode || "",
+    total: pending.total,
+    status: "nouvelle",
+    paymentStatus: "paid",
+    stripeSessionId: sessionId,
+    tracking: "",
+    viewed: false
+  };
+
+  orders.push(order);
+  saveOrders(orders);
+  deletePendingCheckout(sessionId);
+
+  console.log(`[W6] STRIPE PAID ORDER ${order.id} — ${order.total.toFixed(2)}€ — ${order.customer.name}`);
+  sendOrderEmail(order);
+  return order;
+}
+
+/* Stripe webhook event processor */
+async function handleStripeWebhook(req, res) {
+  const sig = req.headers["stripe-signature"];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+
+  if (!stripeKey) {
+    console.warn("[Stripe Webhook] Received webhook but STRIPE_SECRET_KEY is not set.");
+    return res.status(500).send("Stripe not configured");
+  }
+
+  const stripe = require("stripe")(stripeKey);
+  let event;
+
+  try {
+    if (webhookSecret && sig) {
+      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } else {
+      event = JSON.parse(req.body.toString());
+      console.warn("[Stripe Webhook] Warning: STRIPE_WEBHOOK_SECRET not provided, payload parsed without signature verification.");
+    }
+  } catch (err) {
+    console.error("[Stripe Webhook] Verification error:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event && event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    if (session && session.payment_status === "paid") {
+      try {
+        await finalizeOrder(session.id);
+      } catch (err) {
+        console.error("[Stripe Webhook] Error finalizing order:", err);
+      }
+    }
+  }
+
+  res.json({ received: true });
+}
+
+/* Checkout session creation endpoint */
+app.post("/api/checkout/create-session", orderLimiter, async (req, res) => {
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    return res.status(500).json({ error: "Stripe payment is not configured yet. Please set STRIPE_SECRET_KEY in environment." });
+  }
+
+  const b = req.body || {};
+  const customer = b.customer || {};
+  const name = String(customer.name || "").trim();
+  const email = String(customer.email || "").trim();
+  const phone = String(customer.phone || "").trim();
+  const fulfillment = b.fulfillment === "pickup" ? "pickup" : "delivery";
+  const items = Array.isArray(b.items) ? b.items : [];
+
+  if (!name) return res.status(400).json({ error: "name required" });
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: "invalid email" });
+  if (items.length < 1 || items.length > 20) return res.status(400).json({ error: "invalid items" });
+
+  const products = loadProducts();
+  const orderItems = [];
+  for (const it of items) {
+    const p = products[it.handle];
+    if (!p) return res.status(400).json({ error: "unknown product: " + it.handle });
+    const qty = Number(it.qty);
+    if (!Number.isInteger(qty) || qty < 1 || qty > 20) return res.status(400).json({ error: "invalid qty" });
+    if (p.stock !== undefined && p.stock < qty) {
+      return res.status(400).json({ error: `Rupture de stock pour ${p.name && p.name.fr ? p.name.fr : p.handle}` });
+    }
+    const price = orderPriceFor(p, it.options);
+    const opts = it.options && Object.keys(it.options).length
+      ? Object.entries(it.options).map(([k, v]) => k + ": " + v).join(" · ")
+      : "";
+    const rawOptions = it.options && typeof it.options === "object" ? it.options : {};
+    orderItems.push({
+      handle: p.handle,
+      name: p.name && p.name.fr ? p.name.fr : p.handle,
+      options: opts,
+      rawOptions,
+      qty,
+      price,
+      line: Math.round(price * qty * 100) / 100
+    });
+  }
+
+  let address = null;
+  let pickup = null;
+  let shipping = 0;
+  let deliveryMethod = "relay";
+  let weightKg = 0;
+  if (fulfillment === "delivery") {
+    const line1 = String(b.address && b.address.line1 || "").trim();
+    const city = String(b.address && b.address.city || "").trim();
+    const zip = String(b.address && b.address.zip || "").trim();
+    if (!line1 || !city || !zip) return res.status(400).json({ error: "address required" });
+    address = { line1, city, zip, country: String(b.address.country || "").trim() };
+    deliveryMethod = b.deliveryMethod === "home" ? "home" : "relay";
+    const subtotal = Math.round(orderItems.reduce((s, i) => s + i.line, 0) * 100) / 100;
+    weightKg = orderWeightKg(products, orderItems);
+    shipping = shippingFee(address.country, deliveryMethod, weightKg, subtotal, orderProductTypes(orderItems));
+  } else {
+    const date = String(b.pickup && b.pickup.date || "").trim();
+    const time = String(b.pickup && b.pickup.time || "").trim();
+    if (!date || !time) return res.status(400).json({ error: "pickup date/time required" });
+    pickup = { date, time };
+  }
+
+  const subtotal = Math.round(orderItems.reduce((s, i) => s + i.line, 0) * 100) / 100;
+  const promos = loadPromos();
+  const promo = applyPromo(promos, b.promoCode, subtotal);
+  if (!promo.ok) {
+    return res.status(400).json({ error: "invalid promo code" });
+  }
+  const discount = promo.discount;
+  const total = Math.round((subtotal + shipping - discount) * 100) / 100;
+
+  try {
+    const stripe = require("stripe")(stripeKey);
+
+    const line_items = orderItems.map((it) => ({
+      price_data: {
+        currency: "eur",
+        product_data: {
+          name: it.name,
+          description: it.options || undefined
+        },
+        unit_amount: Math.round(it.price * 100)
+      },
+      quantity: it.qty
+    }));
+
+    const shipping_options = [
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: {
+            amount: Math.round(shipping * 100),
+            currency: "eur"
+          },
+          display_name: fulfillment === "pickup"
+            ? "Retrait showroom 12 Rue Boulard (gratuit)"
+            : (deliveryMethod === "home" ? "Livraison à domicile" : "Livraison en point relais")
+        }
+      }
+    ];
+
+    let discounts = undefined;
+    if (discount > 0) {
+      const coupon = await stripe.coupons.create({
+        amount_off: Math.round(discount * 100),
+        currency: "eur",
+        duration: "once",
+        name: promo.code || "Réduction"
+      });
+      discounts = [{ coupon: coupon.id }];
+    }
+
+    const origin = process.env.NODE_ENV === "production"
+      ? "https://w6paris.com"
+      : `${req.protocol}://${req.get("host")}`;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card", "link"],
+      mode: "payment",
+      customer_email: email,
+      line_items,
+      shipping_options,
+      discounts,
+      metadata: {
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        fulfillment,
+        deliveryMethod,
+        promoCode: promo.code || ""
+      },
+      success_url: `${origin}/checkout.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/checkout.html?canceled=true`
+    });
+
+    savePendingCheckout(session.id, {
+      sessionId: session.id,
+      createdAt: Date.now(),
+      customer: { name, email, phone },
+      fulfillment,
+      deliveryMethod,
+      weightKg,
+      address,
+      pickup,
+      items: orderItems,
+      subtotal,
+      shipping,
+      discount,
+      promoCode: promo.code || "",
+      total
+    });
+
+    res.json({ ok: true, url: session.url, sessionId: session.id });
+  } catch (err) {
+    console.error("[Stripe Session Error]", err);
+    res.status(500).json({ error: err.message || "Failed to create checkout session" });
+  }
+});
+
+/* Retrieve completed order by Stripe session ID (for checkout confirmation screen) */
+app.get("/api/checkout/session/:id", async (req, res) => {
+  const sessionId = String(req.params.id || "").trim();
+  if (!sessionId) return res.status(400).json({ error: "missing session id" });
+
+  try {
+    let order = loadOrders().find((o) => o.stripeSessionId === sessionId);
+    if (!order) {
+      const stripeKey = process.env.STRIPE_SECRET_KEY;
+      if (stripeKey) {
+        const stripe = require("stripe")(stripeKey);
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        if (session && session.payment_status === "paid") {
+          order = await finalizeOrder(sessionId);
+        }
+      }
+    }
+
+    if (order) {
+      return res.json({
+        ok: true,
+        order: {
+          id: order.id,
+          total: order.total,
+          customer: order.customer,
+          fulfillment: order.fulfillment
+        }
+      });
+    }
+
+    res.status(404).json({ error: "Order not found or payment pending" });
+  } catch (err) {
+    console.error("[GET /api/checkout/session/:id Error]", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /* Public promo validation (for checkout preview) */
 app.post("/api/promo/validate", (req, res) => {
@@ -1076,85 +1440,94 @@ app.get("/api/admin/orders/export", requireAuth, (req, res) => {
   res.send(csv);
 });
 
+function buildInvoicePdf(order) {
+  return new Promise((resolve, reject) => {
+    try {
+      const PDFDocument = require("pdfkit");
+      const doc = new PDFDocument({ size: "A4", margin: 48, info: { Title: "Facture " + order.id } });
+      const buffers = [];
+      doc.on("data", (c) => buffers.push(c));
+      doc.on("end", () => resolve(Buffer.concat(buffers)));
+      doc.on("error", reject);
+
+      const when = new Date(order.createdAt);
+      const dateStr = when.toLocaleDateString("fr-FR");
+      const money = (v) => (v || 0).toFixed(2).replace(".", ",") + " €";
+      const accent = "#9a7b3f";
+      const gray = "#6b6b6b";
+
+      doc.fontSize(22).fillColor("#1c1c1c").text("W6 Paris", { continued: false });
+      doc.fontSize(9).fillColor(gray).text("Maison de parfum d'intérieur").text("12 Rue Boulard, 75014 Paris, France").text("contact@w6paris.com");
+
+      doc.fontSize(11).fillColor("#1c1c1c").text("FACTURE", { align: "right" });
+      doc.fontSize(9).fillColor(gray).text(order.id, { align: "right" });
+      doc.text("Date : " + dateStr, { align: "right" });
+
+      doc.moveDown();
+      doc.fontSize(10).fillColor("#1c1c1c").text("Facturé à :");
+      doc.fontSize(9).fillColor("#1c1c1c").text(order.customer.name).fillColor(gray).text(order.customer.email);
+      if (order.customer.phone) doc.fontSize(9).fillColor(gray).text(order.customer.phone);
+      if (order.fulfillment === "delivery" && order.address) {
+        doc.fillColor(gray).text([order.address.line1, order.address.zip + " " + order.address.city, order.address.country].filter(Boolean).join(", "));
+      }
+      doc.fillColor("#1c1c1c").text(order.fulfillment === "pickup"
+        ? "Retrait en boutique — " + (order.pickup ? order.pickup.date + " " + order.pickup.time : "")
+        : "Livraison " + (order.deliveryMethod === "home" ? "à domicile" : "Point Relais") + (order.weightKg ? " — " + String(order.weightKg).replace(".", ",") + " kg" : ""));
+
+      doc.moveDown(2);
+      doc.moveTo(48, doc.y).lineTo(552, doc.y).strokeColor("#ddd").stroke();
+
+      doc.fontSize(9).fillColor(gray);
+      doc.text("Article", 48, doc.y + 8, { width: 250 });
+      doc.text("Qté", 320, doc.y, { width: 60, align: "right" });
+      doc.text("P.U. HT", 400, doc.y, { width: 70, align: "right" });
+      doc.text("Total", 500, doc.y, { width: 52, align: "right" });
+
+      doc.moveDown();
+      doc.fontSize(9).fillColor("#1c1c1c");
+      order.items.forEach((it) => {
+        doc.text(it.name + (it.options ? " (" + it.options + ")" : ""), 48, doc.y, { width: 270 });
+        doc.text(String(it.qty), 320, doc.y, { width: 60, align: "right" });
+        doc.text(money(it.price), 400, doc.y, { width: 70, align: "right" });
+        doc.text(money(it.line), 500, doc.y, { width: 52, align: "right" });
+        doc.moveDown(0.5);
+      });
+
+      doc.moveTo(48, doc.y).lineTo(552, doc.y).strokeColor("#ddd").stroke();
+      doc.moveDown();
+      doc.fontSize(9).fillColor("#1c1c1c");
+      const row = (label, value) => {
+        doc.text(label, 340, doc.y, { width: 160 });
+        doc.text(value, 500, doc.y, { width: 52, align: "right" });
+        doc.moveDown(0.6);
+      };
+      row("Sous-total", money(order.subtotal));
+      if (order.shipping) row("Livraison", money(order.shipping));
+      if (order.discount) row("Réduction", "− " + money(order.discount));
+      doc.fontSize(12).fillColor("#1c1c1c");
+      row("TOTAL", money(order.total));
+      doc.fontSize(9).fillColor(accent).text(order.promoCode ? "Code promo : " + order.promoCode : "");
+
+      doc.moveDown(2);
+      doc.fontSize(8.5).fillColor(gray)
+        .text("W6 Paris — 12 Rue Boulard, 75014 Paris. Facture générée le " + new Date().toLocaleDateString("fr-FR") + ".", 48, null);
+
+      doc.end();
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
 /* Invoice PDF (single order) */
 app.get("/api/admin/orders/:id/invoice", requireAuth, async (req, res) => {
   try {
     const order = loadOrders().find((o) => o.id === req.params.id);
     if (!order) return res.status(404).json({ error: "unknown order" });
-    const PDFDocument = require("pdfkit");
-    const doc = new PDFDocument({ size: "A4", margin: 48, info: { Title: "Facture " + order.id } });
-    const buffers = [];
-    doc.on("data", (c) => buffers.push(c));
-    doc.on("end", () => {
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", 'attachment; filename="facture-' + order.id + '.pdf"');
-      res.send(Buffer.concat(buffers));
-    });
-
-    const when = new Date(order.createdAt);
-    const dateStr = when.toLocaleDateString("fr-FR");
-    const money = (v) => (v || 0).toFixed(2).replace(".", ",") + " €";
-    const accent = "#9a7b3f";
-    const gray = "#6b6b6b";
-
-    doc.fontSize(22).fillColor("#1c1c1c").text("W6 Paris", { continued: false });
-    doc.fontSize(9).fillColor(gray).text("Maison de parfum d'intérieur").text("12 Rue Boulard, 75014 Paris, France").text("contact@w6paris.com");
-
-    doc.fontSize(11).fillColor("#1c1c1c").text("FACTURE", { align: "right" });
-    doc.fontSize(9).fillColor(gray).text(order.id, { align: "right" });
-    doc.text("Date : " + dateStr, { align: "right" });
-
-    doc.moveDown();
-    doc.fontSize(10).fillColor("#1c1c1c").text("Facturé à :");
-    doc.fontSize(9).fillColor("#1c1c1c").text(order.customer.name).fillColor(gray).text(order.customer.email);
-    if (order.customer.phone) doc.fontSize(9).fillColor(gray).text(order.customer.phone);
-    if (order.fulfillment === "delivery" && order.address) {
-      doc.fillColor(gray).text([order.address.line1, order.address.zip + " " + order.address.city, order.address.country].filter(Boolean).join(", "));
-    }
-    doc.fillColor("#1c1c1c").text(order.fulfillment === "pickup"
-      ? "Retrait en boutique — " + (order.pickup ? order.pickup.date + " " + order.pickup.time : "")
-      : "Livraison " + (order.deliveryMethod === "home" ? "à domicile" : "Point Relais") + (order.weightKg ? " — " + String(order.weightKg).replace(".", ",") + " kg" : ""));
-
-    doc.moveDown(2);
-    doc.moveTo(48, doc.y).lineTo(552, doc.y).strokeColor("#ddd").stroke();
-
-    doc.fontSize(9).fillColor(gray);
-    doc.text("Article", 48, doc.y + 8, { width: 250 });
-    doc.text("Qté", 320, doc.y, { width: 60, align: "right" });
-    doc.text("P.U. HT", 400, doc.y, { width: 70, align: "right" });
-    doc.text("Total", 500, doc.y, { width: 52, align: "right" });
-
-    doc.moveDown();
-    const startY = doc.y;
-    doc.fontSize(9).fillColor("#1c1c1c");
-    order.items.forEach((it) => {
-      doc.text(it.name + (it.options ? " (" + it.options + ")" : ""), 48, doc.y, { width: 270 });
-      doc.text(String(it.qty), 320, doc.y, { width: 60, align: "right" });
-      doc.text(money(it.price), 400, doc.y, { width: 70, align: "right" });
-      doc.text(money(it.line), 500, doc.y, { width: 52, align: "right" });
-      doc.moveDown(0.5);
-    });
-
-    doc.moveTo(48, doc.y).lineTo(552, doc.y).strokeColor("#ddd").stroke();
-    doc.moveDown();
-    doc.fontSize(9).fillColor("#1c1c1c");
-    const row = (label, value) => {
-      doc.text(label, 340, doc.y, { width: 160 });
-      doc.text(value, 500, doc.y, { width: 52, align: "right" });
-      doc.moveDown(0.6);
-    };
-    row("Sous-total", money(order.subtotal));
-    if (order.shipping) row("Livraison", money(order.shipping));
-    if (order.discount) row("Réduction", "− " + money(order.discount));
-    doc.fontSize(12).fillColor("#1c1c1c");
-    row("TOTAL", money(order.total));
-    doc.fontSize(9).fillColor(accent).text(order.promoCode ? "Code promo : " + order.promoCode : "");
-
-    doc.moveDown(2);
-    doc.fontSize(8.5).fillColor(gray)
-      .text("W6 Paris — 12 Rue Boulard, 75014 Paris. Facture générée le " + new Date().toLocaleDateString("fr-FR") + ".", 48, null);
-
-    doc.end();
+    const buf = await buildInvoicePdf(order);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'attachment; filename="facture-' + order.id + '.pdf"');
+    res.send(buf);
   } catch (e) {
     res.status(500).json({ error: "invoice failed" });
   }

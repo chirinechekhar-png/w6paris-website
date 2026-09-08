@@ -49,6 +49,7 @@
       </div>
 
       <div class="checkout-form">
+        <div id="coCanceled" style="display:none; background:#fff8e6; color:#8a6d3b; border:1px solid #faebcc; padding:12px 16px; border-radius:4px; margin-bottom:20px; font-size:14px; line-height:1.5;"></div>
         <h2 data-i18n="checkout.formTitle">Vos coordonnées</h2>
         <form id="coForm" novalidate>
           <div class="field">
@@ -145,17 +146,20 @@
 
           <p class="co-error" id="coError" style="display:none;"></p>
 
-          <button type="submit" class="btn btn-solid add-to-cart" data-i18n="checkout.submit">Confirmer la commande</button>
+          <button type="submit" class="btn btn-solid add-to-cart" id="coSubmitBtn" data-i18n="checkout.submit">Procéder au paiement sécurisé</button>
+          <div style="margin-top:14px; text-align:center; font-size:12px; color:var(--muted); line-height:1.5;">
+            <span>🔒 Paiement sécurisé SSL par Stripe · CB, Visa, Mastercard, Apple Pay</span>
+          </div>
         </form>
       </div>
     </div>
 
     <!-- CONFIRMATION -->
     <div class="checkout-success" id="coSuccess" style="display:none;">
-      <h2 data-i18n="checkout.successTitle">Merci !</h2>
-      <p data-i18n="checkout.successP1">Votre commande a bien été enregistrée.</p>
+      <h2 data-i18n="checkout.successTitle">Merci pour votre commande !</h2>
+      <p data-i18n="checkout.successP1">Votre paiement a bien été validé et votre commande est confirmée.</p>
       <p class="co-orderid"><strong data-i18n="checkout.orderNo">N° de commande</strong><br><span id="coOrderId"></span></p>
-      <p data-i18n="checkout.successP2">Nous vous contacterons pour organiser la livraison ou le retrait.</p>
+      <p data-i18n="checkout.successP2">Un e-mail de confirmation avec votre facture PDF officielle vous a été envoyé.</p>
       <p><a class="btn" href="tracking.html" data-i18n="checkout.trackOrder">Suivre ma commande</a></p>
       <a class="btn" href="index.html" data-i18n="checkout.home">Retour à l'accueil</a>
     </div>
