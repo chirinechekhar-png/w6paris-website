@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "code": "WELCOME10",
+    "type": "percent",
+    "value": 10,
+    "uses": 0
+  }
+]

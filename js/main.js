@@ -113,10 +113,13 @@ function renderCart() {
   const empty = document.getElementById("cartEmpty");
   if (!wrap) return;
 
+  const freeShipEl = document.getElementById("cartFreeShip");
+  const threshold = 150;
   if (cart.length === 0) {
     wrap.innerHTML = "";
     if (empty) empty.style.display = "block";
     if (totalEl) totalEl.textContent = "€0,00";
+    if (freeShipEl) freeShipEl.style.display = "none";
     return;
   }
   if (empty) empty.style.display = "none";
@@ -146,6 +149,29 @@ function renderCart() {
   }).join("");
 
   if (totalEl) totalEl.textContent = formatPrice(total);
+
+  if (freeShipEl) {
+    freeShipEl.style.display = "block";
+    const remaining = Math.max(0, Math.round((threshold - total) * 100) / 100);
+    const pct = Math.min(100, Math.round((total / threshold) * 100));
+    if (remaining > 0) {
+      const msg = (LANG === "fr")
+        ? `Plus que <strong>${formatPrice(remaining)}</strong> pour profiter de la <strong>livraison offerte</strong> !`
+        : `Add <strong>${formatPrice(remaining)}</strong> more to enjoy <strong>free shipping</strong>!`;
+      freeShipEl.innerHTML = `
+        <div class="cart-fs-text">${msg}</div>
+        <div class="cart-fs-track"><div class="cart-fs-bar" style="width: ${pct}%"></div></div>
+      `;
+    } else {
+      const msg = (LANG === "fr")
+        ? `✨ <strong>Livraison offerte débloquée</strong> sur votre commande !`
+        : `✨ <strong>Free shipping unlocked</strong> on your order!`;
+      freeShipEl.innerHTML = `
+        <div class="cart-fs-text cart-fs-unlocked">${msg}</div>
+        <div class="cart-fs-track"><div class="cart-fs-bar full" style="width: 100%"></div></div>
+      `;
+    }
+  }
 }
 
 window.checkout = function () {
@@ -200,6 +226,7 @@ function injectChrome() {
         <h3>${t("cart.title")}</h3>
         <button class="cart-close" onclick="closeCart()">&times;</button>
       </div>
+      <div class="cart-freeship" id="cartFreeShip" style="display:none"></div>
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-items" id="cartEmpty" style="display:none">
         <div class="cart-empty">
@@ -215,7 +242,16 @@ function injectChrome() {
         <button class="btn btn-solid add-to-cart" onclick="checkout()">${t("cart.checkout")}</button>
         <p class="checkout-note">${t("cart.note")}</p>
       </div>
-    </aside>`);
+    </aside>
+    <div class="concierge-floating" id="conciergeBadge">
+      <a href="mailto:contact@w6paris.com?subject=${encodeURIComponent(LANG === 'fr' ? 'Demande de conseil personnalisé — W6 Paris' : 'Fragrance advice inquiry — W6 Paris')}" class="concierge-pill" title="${LANG === 'fr' ? 'Écrivez-nous · Réponse rapide garantie' : 'Email us · Fast response'}">
+        <span class="concierge-icon">✉</span>
+        <span class="concierge-text">
+          <span class="concierge-title">${LANG === 'fr' ? 'Conseil personnalisé ?' : 'Need fragrance advice?'}</span>
+          <span class="concierge-sub">${LANG === 'fr' ? 'Écrivez-nous · Réponse rapide' : 'Email us · Fast response'}</span>
+        </span>
+      </a>
+    </div>`);
 
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeCart(); });
 }
@@ -230,6 +266,7 @@ function injectFooter() {
             <p>${t("footer.tagline")}</p>
             <p style="margin-top:14px;">${t("home.storeAddress")}</p>
             <p style="font-size:13px;opacity:.85;"><a href="mailto:contact@w6paris.com" style="color:var(--muted);text-decoration:underline;">contact@w6paris.com</a></p>
+            <p style="font-size:12px;color:#bfa068;margin-top:10px;">${LANG === 'fr' ? 'Une question ? Écrivez-nous — Réponse rapide garantie.' : 'Questions? Email us — Rapid reply guaranteed.'}</p>
           </div>
           <div class="footer-col">
             <h4>${t("footer.careTitle")}</h4>

@@ -1061,3 +1061,189 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 500; line-height: 1.15;
   .co-guarantees { grid-template-columns: 1fr; gap: 8px; }
   .co-guarantee-item { flex-direction: row; justify-content: center; gap: 8px; }
 }
+
+/* ---------- Cart Free Shipping Bar ---------- */
+.cart-freeship {
+  padding: 12px 20px;
+  background: #fdfbf7;
+  border-bottom: 1px solid var(--line);
+}
+.cart-fs-text {
+  font-size: 12px;
+  color: var(--ink);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  text-align: center;
+}
+.cart-fs-text strong {
+  color: var(--accent);
+}
+.cart-fs-text.cart-fs-unlocked {
+  color: #276749;
+  font-weight: 500;
+}
+.cart-fs-text.cart-fs-unlocked strong {
+  color: #276749;
+}
+.cart-fs-track {
+  width: 100%;
+  height: 6px;
+  background: #ede6dc;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.cart-fs-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #bfa068, #9a7b3f);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.cart-fs-bar.full {
+  background: #38a169;
+}
+
+/* ---------- Customer Reviews Section ---------- */
+.section-reviews {
+  background: #faf8f5;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 80px 0;
+}
+.reviews-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 6px 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.reviews-rating-badge .stars {
+  color: #9a7b3f;
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+.reviews-rating-badge .score {
+  font-size: 13px;
+  color: var(--ink);
+}
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+.review-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.review-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+}
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.review-header .stars {
+  color: #9a7b3f;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+.review-badge {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7d612b;
+  background: #fbf5ea;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+.review-quote {
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink);
+  font-style: italic;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+.review-author strong {
+  display: block;
+  font-size: 13.5px;
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--ink);
+}
+.review-author span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ---------- Floating Email Concierge ---------- */
+.concierge-floating {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 90;
+}
+.concierge-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  text-decoration: none;
+  border: 1px solid rgba(191, 160, 104, 0.4);
+  transition: all 0.25s ease;
+}
+.concierge-pill:hover {
+  background: #000;
+  transform: translateY(-2px);
+  border-color: #d4af37;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  color: #fff;
+}
+.concierge-icon {
+  font-size: 16px;
+  color: #d4af37;
+}
+.concierge-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.concierge-title {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+.concierge-sub {
+  font-size: 10.5px;
+  color: #bfa068;
+}
+
+@media (max-width: 760px) {
+  .reviews-grid { grid-template-columns: 1fr; }
+  .concierge-floating { bottom: 16px; right: 16px; }
+  .concierge-pill { padding: 8px 14px; }
+  .concierge-title { font-size: 11px; }
+  .concierge-sub { font-size: 10px; }
+}

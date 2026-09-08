@@ -1847,6 +1847,14 @@ app.get(["/orders", "/orders.html"], (req, res) => {
   res.sendFile(path.join(ROOT, "orders.html"));
 });
 
+/* 404 handler */
+app.use((req, res) => {
+  if (req.accepts("html")) {
+    return res.status(404).sendFile(path.join(ROOT, "404.html"));
+  }
+  res.status(404).json({ error: "Not found" });
+});
+
 /* ---------------- boot ---------------- */
 
 ensureDataDir();
