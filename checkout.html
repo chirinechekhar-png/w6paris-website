@@ -54,6 +54,10 @@
           <span data-i18n="checkout.shipping">Livraison</span>
           <strong id="coShipping"></strong>
         </div>
+        <div class="co-total" id="coShipDiscRow" style="display:none; color:var(--accent,#9a7b3f);">
+          <span id="coShipDiscLabel" data-i18n="checkout.shippingDiscount">Remise livraison</span>
+          <strong id="coShipDisc"></strong>
+        </div>
         <div class="co-total" id="coDiscRow" style="display:none;">
           <span data-i18n="checkout.discount">Réduction</span>
           <strong id="coDiscount"></strong>
@@ -165,8 +169,8 @@
 
           <!-- CARD 3: PROMO & PAYMENT -->
           <div class="co-card">
-            <h3>3. Code avantage & Paiement</h3>
-            <div class="field">
+            <h3 id="coCard3Title" data-i18n="checkout.paymentCardTitle">3. Code avantage & Paiement</h3>
+            <div class="field" id="coPromoGroup">
               <label data-i18n="checkout.promoTitle">Code promo</label>
               <div class="co-promo-row">
                 <input type="text" id="coPromo" placeholder="WELCOME10" style="text-transform:uppercase;">

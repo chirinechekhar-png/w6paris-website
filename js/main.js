@@ -150,6 +150,20 @@ function renderCart() {
   if (totalEl) totalEl.textContent = formatPrice(total);
 
   if (freeShipEl) {
+    let maxDisc = 0;
+    cart.forEach((it) => {
+      let amt = 0;
+      if (it.handle === "diffuseur-i6") amt = 10;
+      else if (it.handle === "diffuseur-i7") amt = 8;
+      else if (it.handle === "diffuseur-nomade") amt = 6;
+      else if (it.handle === "pack-duo") amt = 5;
+      else {
+        const p = getProduct(it.handle) || {};
+        if (p.type === "oil") amt = 4;
+      }
+      if (amt > maxDisc) maxDisc = amt;
+    });
+
     const hasDiffusers = cart.some((it) => {
       const p = getProduct(it.handle) || {};
       return p.type === "diffuser" || p.type === "bundle";
@@ -160,6 +174,13 @@ function renderCart() {
     });
 
     let msg = "";
+    let discSub = "";
+    if (maxDisc > 0) {
+      discSub = (LANG === "fr")
+        ? `<div style="font-size:12px;margin-top:4px;color:var(--accent,#9a7b3f);font-weight:500;">Remise de ${maxDisc} € sur vos frais de livraison incluse</div>`
+        : `<div style="font-size:12px;margin-top:4px;color:var(--accent,#9a7b3f);font-weight:500;">€${maxDisc} shipping discount included at checkout</div>`;
+    }
+
     if (hasOnlyOils) {
       msg = (LANG === "fr")
         ? `<strong>Point Relais offert</strong> en France, Belgique, Luxembourg & Pays-Bas`
@@ -175,7 +196,7 @@ function renderCart() {
     }
     freeShipEl.style.display = "block";
     freeShipEl.innerHTML = `
-      <div class="cart-fs-text cart-fs-unlocked">${msg}</div>
+      <div class="cart-fs-text cart-fs-unlocked">${msg}${discSub}</div>
     `;
   }
 }

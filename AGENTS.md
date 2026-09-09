@@ -31,6 +31,13 @@ W6 Paris is a luxury Parisian home fragrance house (*Maison de parfum d'intérie
 - **Preparation & Dispatch**: 24–48 business hours to 19 European countries.
 - **Delivery Methods**: Point Relais (pickup point) and Tracked Home Delivery, or free Showroom Pickup at 12 Rue Boulard, 75014 Paris.
 - **Free Delivery Policy**: Point Relais delivery is complimentary in Metropolitan France (and in Belgium, Luxembourg, and the Netherlands for fragrance orders). **Never advertise or mention the obsolete "150 €" threshold.**
+- **Automatic Delivery Discounts (Option 1 - Highest single discount per cart)**:
+  - **Diffuseur i6**: -10,00 € off shipping (Relais & Domicile)
+  - **Diffuseur i7**: -8,00 € off shipping (Relais & Domicile)
+  - **Diffuseur Nomade**: -6,00 € off shipping (Relais & Domicile)
+  - **Pack Duo**: -5,00 € off shipping (Relais & Domicile)
+  - **Fragrances (10 ml & 100 ml)**: -4,00 € off shipping (Relais & Domicile)
+  - Minimum delivery fee is always 0,00 € (never negative). Highlighted as a clear discount at checkout.
 
 ---
 

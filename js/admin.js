@@ -424,10 +424,28 @@ loadImages();
 
 /* ---------- promo codes ---------- */
 let PROMOS = [];
+let PROMO_CHECKOUT_VISIBLE = true;
 
 function fmtExpiry(ms) {
   if (!ms) return "—";
   return new Date(ms).toLocaleDateString("fr-FR");
+}
+
+function renderPromoVisibility() {
+  const badge = $("#promoVisBadge");
+  const btn = $("#promoVisToggleBtn");
+  if (!badge || !btn) return;
+  if (PROMO_CHECKOUT_VISIBLE) {
+    badge.textContent = "Visible au paiement";
+    badge.className = "promo-vis-badge badge-visible";
+    btn.textContent = "Masquer au paiement";
+    btn.className = "btn admin-btn admin-danger-btn";
+  } else {
+    badge.textContent = "Masqué au paiement";
+    badge.className = "promo-vis-badge badge-hidden";
+    btn.textContent = "Afficher au paiement";
+    btn.className = "btn admin-btn";
+  }
 }
 
 function renderPromos() {
@@ -437,15 +455,33 @@ function renderPromos() {
     ? PROMOS.map((p) => `
         <div class="promo-row${p.disabled ? " promo-off" : ""}">
           <strong>${esc(p.code)}</strong>
+          <span class="promo-badge ${p.disabled ? "badge-off" : "badge-active"}">${p.disabled ? "Désactivé" : "Actif"}</span>
           <span>${p.type === "percent" ? p.value + "%" : p.value.toFixed(2).replace(".", ",") + " €"}</span>
           ${p.minSubtotal ? `<span>min ${p.minSubtotal.toFixed(2).replace(".", ",")} €</span>` : ""}
           ${p.maxUses ? `<span>${p.uses}/${p.maxUses}</span>` : `<span>${p.uses}×</span>`}
           <span>exp ${fmtExpiry(p.expiresAt)}</span>
-          <button type="button" class="admin-link-btn promo-del" data-code="${esc(p.code)}">Supprimer</button>
+          <div class="promo-actions">
+            <button type="button" class="admin-link-btn promo-toggle-btn" data-code="${esc(p.code)}">${p.disabled ? "Activer" : "Désactiver"}</button>
+            <button type="button" class="admin-link-btn promo-del" data-code="${esc(p.code)}">Supprimer</button>
+          </div>
         </div>`).join("")
-    : '<p class="admin-empty" style="font-size:13px;">Aucun code promo.</p>';
+    : '<p class="admin-empty" style="font-size:13px;">Aucun code promo configuré.</p>';
+
+  list.querySelectorAll(".promo-toggle-btn").forEach((btn) =>
+    btn.addEventListener("click", async () => {
+      const r = await api("/api/admin/promos/" + encodeURIComponent(btn.dataset.code) + "/toggle", { method: "PATCH" });
+      if (r.ok) {
+        setStatus(`Code ${btn.dataset.code} : ${r.d.disabled ? "désactivé" : "activé"}.`);
+        loadPromos();
+      } else {
+        setStatus("Erreur lors de la modification du code.", "err");
+      }
+    })
+  );
+
   list.querySelectorAll(".promo-del").forEach((btn) =>
     btn.addEventListener("click", async () => {
+      if (!confirm(`Supprimer définitivement le code ${btn.dataset.code} ?`)) return;
       const r = await api("/api/admin/promos/" + encodeURIComponent(btn.dataset.code), { method: "DELETE" });
       if (r.ok) { setStatus("Code supprimé : " + btn.dataset.code); loadPromos(); }
     })
@@ -454,7 +490,38 @@ function renderPromos() {
 
 async function loadPromos() {
   const r = await api("/api/admin/promos");
-  if (r.ok) { PROMOS = r.d || []; renderPromos(); }
+  if (r.ok) {
+    if (Array.isArray(r.d)) {
+      PROMOS = r.d;
+      PROMO_CHECKOUT_VISIBLE = true;
+    } else if (r.d) {
+      PROMOS = r.d.promos || [];
+      PROMO_CHECKOUT_VISIBLE = r.d.checkoutVisible !== false;
+    }
+    renderPromoVisibility();
+    renderPromos();
+  }
+}
+
+const promoToggleBtn = $("#promoVisToggleBtn");
+if (promoToggleBtn) {
+  promoToggleBtn.addEventListener("click", async () => {
+    const nextState = !PROMO_CHECKOUT_VISIBLE;
+    promoToggleBtn.disabled = true;
+    const r = await api("/api/admin/promos/visibility", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checkoutVisible: nextState })
+    });
+    promoToggleBtn.disabled = false;
+    if (r.ok) {
+      PROMO_CHECKOUT_VISIBLE = r.d.checkoutVisible;
+      renderPromoVisibility();
+      setStatus(PROMO_CHECKOUT_VISIBLE ? "Section code promo visible au paiement." : "Section code promo masquée au paiement.");
+    } else {
+      setStatus("Erreur lors de la mise à jour de l'affichage.", "err");
+    }
+  });
 }
 
 $("#promoAddBtn").addEventListener("click", async () => {

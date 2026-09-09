@@ -90,6 +90,18 @@
       <details class="admin-settings">
         <summary>Codes promo</summary>
         <div class="admin-promo-form">
+          <div class="admin-promo-visibility-box">
+            <div class="promo-vis-info">
+              <strong class="promo-vis-title">Section Code promo au paiement</strong>
+              <p class="notes" style="margin:2px 0 0;font-size:12px;">Afficher ou masquer la section et le champ « Code promo » sur la page de règlement (checkout).</p>
+            </div>
+            <div class="promo-vis-controls">
+              <span class="promo-vis-badge badge-visible" id="promoVisBadge">Visible</span>
+              <button type="button" class="btn admin-btn" id="promoVisToggleBtn">Masquer au paiement</button>
+            </div>
+          </div>
+
+          <h4 style="margin:20px 0 10px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:var(--sans);">Ajouter un code promo</h4>
           <div class="admin-pass-row">
             <input class="admin-input" type="text" id="promoCode" placeholder="CODE (ex: WELCOME10)" style="text-transform:uppercase;">
             <select class="admin-input" id="promoType" style="width:150px;">
@@ -103,6 +115,8 @@
             <button class="btn admin-btn" type="button" id="promoAddBtn">+ Ajouter</button>
           </div>
           <p class="admin-error" id="promoError" style="display:none;"></p>
+
+          <h4 style="margin:20px 0 10px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:var(--sans);">Codes promo configurés</h4>
           <div class="admin-promo-list" id="promoList"></div>
         </div>
       </details>

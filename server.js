@@ -133,9 +133,54 @@ function isRelayFree(country, productTypes) {
 
 const isFreeByType = isRelayFree;
 
-/* Shipping fee in € for a country + method (relay|home) + weight + subtotal + types.
-   Returns 0 when free. Falls back to the last (heaviest) tier if above the table. */
-function shippingFee(country, method, weightKg, subtotal, productTypes) {
+/* Calculate shipping discount based on products in the cart (Option 1: highest single discount).
+   - Diffuseur i6: 10 €
+   - Diffuseur i7: 8 €
+   - Diffuseur Nomade: 6 €
+   - Pack Duo: 5 €
+   - Fragrance oils (10 ml or 100 ml): 4 € */
+function getShippingDiscount(orderItems) {
+  if (!Array.isArray(orderItems) || orderItems.length === 0) {
+    return { amount: 0, label: "" };
+  }
+  const products = loadProducts();
+  let maxDiscount = 0;
+  let bestLabel = "";
+
+  for (const it of orderItems) {
+    const handle = String(it.handle || "");
+    const p = products[handle] || {};
+    let amount = 0;
+    let label = "";
+
+    if (handle === "diffuseur-i6") {
+      amount = 10;
+      label = "Diffuseur i6";
+    } else if (handle === "diffuseur-i7") {
+      amount = 8;
+      label = "Diffuseur i7";
+    } else if (handle === "diffuseur-nomade") {
+      amount = 6;
+      label = "Diffuseur Nomade";
+    } else if (handle === "pack-duo") {
+      amount = 5;
+      label = "Pack Duo";
+    } else if (p.type === "oil") {
+      amount = 4;
+      label = "Fragrance";
+    }
+
+    if (amount > maxDiscount) {
+      maxDiscount = amount;
+      bestLabel = label;
+    }
+  }
+
+  return { amount: maxDiscount, label: bestLabel };
+}
+
+/* Base shipping fee before any product discount (or 0 when free by policy) */
+function baseShippingFee(country, method, weightKg, subtotal, productTypes) {
   const cfg = loadShippingConfig();
   if (cfg.freeFrom && Number(subtotal) >= Number(cfg.freeFrom)) return 0;
   if (method === "relay" && isRelayFree(country, productTypes)) return 0;
@@ -147,12 +192,26 @@ function shippingFee(country, method, weightKg, subtotal, productTypes) {
   return Number(tier.price) || 0;
 }
 
-function shippingInfo(country, method, weightKg, subtotal, productTypes) {
-  const fee = shippingFee(country, method, weightKg, subtotal, productTypes);
+/* Final shipping fee in € after applying product shipping discount (minimum 0 €) */
+function shippingFee(country, method, weightKg, subtotal, productTypes, orderItems) {
+  const base = baseShippingFee(country, method, weightKg, subtotal, productTypes);
+  if (base === 0) return 0;
+  const disc = getShippingDiscount(orderItems);
+  return Math.round(Math.max(0, base - disc.amount) * 100) / 100;
+}
+
+function shippingInfo(country, method, weightKg, subtotal, productTypes, orderItems) {
+  const base = baseShippingFee(country, method, weightKg, subtotal, productTypes);
+  const disc = getShippingDiscount(orderItems);
+  const discountApplied = base > 0 ? Math.min(base, disc.amount) : 0;
+  const fee = Math.round(Math.max(0, base - discountApplied) * 100) / 100;
   const zone = shippingZone(country);
   return {
     zone,
     weightKg,
+    baseFee: base,
+    discount: discountApplied,
+    discountLabel: disc.label,
     fee,
     isFree: fee === 0
   };
@@ -345,20 +404,40 @@ function nextOrderNumber(orders) {
 
 /* ---------------- promo codes ---------------- */
 
-function loadPromos() {
+function loadPromosConfig() {
   try {
-    const arr = JSON.parse(fs.readFileSync(PROMOS_FILE, "utf8"));
-    return Array.isArray(arr) ? arr : [];
+    const raw = JSON.parse(fs.readFileSync(PROMOS_FILE, "utf8"));
+    if (Array.isArray(raw)) {
+      return { checkoutVisible: true, codes: raw };
+    }
+    return {
+      checkoutVisible: raw && raw.checkoutVisible !== false,
+      codes: Array.isArray(raw?.codes) ? raw.codes : (Array.isArray(raw?.promos) ? raw.promos : [])
+    };
   } catch {
-    return [];
+    return { checkoutVisible: true, codes: [] };
   }
 }
 
-function savePromos(data) {
+function loadPromos() {
+  return loadPromosConfig().codes;
+}
+
+function savePromosConfig(cfg) {
   ensureDataDir();
-  const tmp = PROMOS_FILE + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
-  fs.renameSync(tmp, PROMOS_FILE);
+  try {
+    const tmp = PROMOS_FILE + ".tmp";
+    fs.writeFileSync(tmp, JSON.stringify(cfg, null, 2));
+    fs.renameSync(tmp, PROMOS_FILE);
+  } catch {
+    fs.writeFileSync(PROMOS_FILE, JSON.stringify(cfg, null, 2));
+  }
+}
+
+function savePromos(codes) {
+  const cfg = loadPromosConfig();
+  cfg.codes = codes;
+  savePromosConfig(cfg);
 }
 
 /* Returns { ok, discount, code?, reason? } — discount is in €. */
@@ -532,25 +611,53 @@ app.get("/api/shipping", (req, res) => {
   const subtotal = Number(req.query.subtotal) || 0;
   const weightKg = Number(req.query.weightKg) || 0;
   let types = [];
+  let parsedItems = [];
   const itemsRaw = req.query.items;
   if (itemsRaw) {
     try {
       const items = JSON.parse(itemsRaw);
-      if (Array.isArray(items)) types = orderProductTypes(items);
+      if (Array.isArray(items)) {
+        types = orderProductTypes(items);
+        parsedItems = items;
+      }
     } catch { /* ignore malformed */ }
   }
   const cfg = loadShippingConfig();
   const zone = shippingZone(country);
   const zoneCfg = (cfg.zones || {})[zone] || { relay: [], home: [] };
-  const relayFee = shippingFee(country, "relay", weightKg, subtotal, types);
-  const homeFee = shippingFee(country, "home", weightKg, subtotal, types);
+
+  const relayBase = baseShippingFee(country, "relay", weightKg, subtotal, types);
+  const homeBase = baseShippingFee(country, "home", weightKg, subtotal, types);
+  const discountInfo = getShippingDiscount(parsedItems);
+
+  const relayDiscount = relayBase > 0 ? Math.min(relayBase, discountInfo.amount) : 0;
+  const relayFee = Math.round(Math.max(0, relayBase - relayDiscount) * 100) / 100;
+
+  const homeDiscount = homeBase > 0 ? Math.min(homeBase, discountInfo.amount) : 0;
+  const homeFee = Math.round(Math.max(0, homeBase - homeDiscount) * 100) / 100;
+
   res.json({
     zone,
     freeFrom: cfg.freeFrom || null,
     weightKg,
-    relay: { fee: relayFee, isFree: relayFee === 0, tiers: zoneCfg.relay || [] },
-    home: { fee: homeFee, isFree: homeFee === 0, tiers: zoneCfg.home || [] },
-    method
+    discountAmount: discountInfo.amount,
+    discountLabel: discountInfo.label,
+    relay: {
+      baseFee: relayBase,
+      fee: relayFee,
+      discount: relayDiscount,
+      isFree: relayFee === 0,
+      tiers: zoneCfg.relay || []
+    },
+    home: {
+      baseFee: homeBase,
+      fee: homeFee,
+      discount: homeDiscount,
+      isFree: homeFee === 0,
+      tiers: zoneCfg.home || []
+    },
+    method,
+    promoCheckoutVisible: loadPromosConfig().checkoutVisible !== false
   });
 });
 
@@ -604,7 +711,7 @@ app.post("/api/orders", orderLimiter, (req, res) => {
     deliveryMethod = b.deliveryMethod === "home" ? "home" : "relay";
     const subtotal = Math.round(orderItems.reduce((s, i) => s + i.line, 0) * 100) / 100;
     weightKg = orderWeightKg(products, orderItems);
-    shipping = shippingFee(address.country, deliveryMethod, weightKg, subtotal, orderProductTypes(orderItems));
+    shipping = shippingFee(address.country, deliveryMethod, weightKg, subtotal, orderProductTypes(orderItems), orderItems);
   } else {
     const date = String(b.pickup && b.pickup.date || "").trim();
     const time = String(b.pickup && b.pickup.time || "").trim();
@@ -614,9 +721,11 @@ app.post("/api/orders", orderLimiter, (req, res) => {
 
   const orders = loadOrders();
   const number = nextOrderNumber(orders);
-  const subtotal = Math.round(orderItems.reduce((s, i) => s + i.line, 0) * 100) / 100;
-  const promos = loadPromos();
-  const promo = applyPromo(promos, b.promoCode, subtotal);
+  const promoCfg = loadPromosConfig();
+  if (b.promoCode && !promoCfg.checkoutVisible) {
+    return res.status(400).json({ error: "promo codes disabled" });
+  }
+  const promo = applyPromo(promoCfg.codes, b.promoCode, subtotal);
   if (!promo.ok) {
     return res.status(400).json({ error: "invalid promo code" });
   }
@@ -1020,7 +1129,7 @@ app.post("/api/checkout/create-session", orderLimiter, async (req, res) => {
     deliveryMethod = b.deliveryMethod === "home" ? "home" : "relay";
     const subtotal = Math.round(orderItems.reduce((s, i) => s + i.line, 0) * 100) / 100;
     weightKg = orderWeightKg(products, orderItems);
-    shipping = shippingFee(address.country, deliveryMethod, weightKg, subtotal, orderProductTypes(orderItems));
+    shipping = shippingFee(address.country, deliveryMethod, weightKg, subtotal, orderProductTypes(orderItems), orderItems);
   } else {
     const date = String(b.pickup && b.pickup.date || "").trim();
     const time = String(b.pickup && b.pickup.time || "").trim();
@@ -1029,8 +1138,11 @@ app.post("/api/checkout/create-session", orderLimiter, async (req, res) => {
   }
 
   const subtotal = Math.round(orderItems.reduce((s, i) => s + i.line, 0) * 100) / 100;
-  const promos = loadPromos();
-  const promo = applyPromo(promos, b.promoCode, subtotal);
+  const promoCfg = loadPromosConfig();
+  if (b.promoCode && !promoCfg.checkoutVisible) {
+    return res.status(400).json({ error: "promo codes disabled" });
+  }
+  const promo = applyPromo(promoCfg.codes, b.promoCode, subtotal);
   if (!promo.ok) {
     return res.status(400).json({ error: "invalid promo code" });
   }
@@ -1163,9 +1275,18 @@ app.get("/api/checkout/session/:id", async (req, res) => {
 });
 
 /* Public promo validation (for checkout preview) */
+app.get("/api/promo/config", (req, res) => {
+  const cfg = loadPromosConfig();
+  res.json({ checkoutVisible: cfg.checkoutVisible !== false });
+});
+
 app.post("/api/promo/validate", (req, res) => {
+  const cfg = loadPromosConfig();
+  if (cfg.checkoutVisible === false) {
+    return res.json({ ok: false, reason: "disabled" });
+  }
   const subtotal = Number((req.body || {}).subtotal) || 0;
-  const r = applyPromo(loadPromos(), (req.body || {}).code, subtotal);
+  const r = applyPromo(cfg.codes, (req.body || {}).code, subtotal);
   if (!r.ok) return res.json({ ok: false, reason: r.reason });
   res.json({ ok: true, discount: r.discount, code: r.code });
 });
@@ -1679,7 +1800,19 @@ app.post("/api/admin/password", requireAuth, (req, res) => {
 /* ---------------- admin promos API ---------------- */
 
 app.get("/api/admin/promos", requireAuth, (req, res) => {
-  res.json(loadPromos());
+  const cfg = loadPromosConfig();
+  res.json({
+    checkoutVisible: cfg.checkoutVisible !== false,
+    promos: cfg.codes
+  });
+});
+
+app.post("/api/admin/promos/visibility", requireAuth, (req, res) => {
+  const b = req.body || {};
+  const cfg = loadPromosConfig();
+  cfg.checkoutVisible = !!b.checkoutVisible;
+  savePromosConfig(cfg);
+  res.json({ ok: true, checkoutVisible: cfg.checkoutVisible });
 });
 
 app.post("/api/admin/promos", requireAuth, (req, res) => {
@@ -1691,7 +1824,8 @@ app.post("/api/admin/promos", requireAuth, (req, res) => {
   const value = Number(b.value);
   if (!Number.isFinite(value) || value <= 0) return res.status(400).json({ error: "invalid value" });
   if (type === "percent" && value > 100) return res.status(400).json({ error: "percent > 100" });
-  const promos = loadPromos();
+  const cfg = loadPromosConfig();
+  const promos = cfg.codes;
   if (promos.some((p) => p.code === code)) return res.status(409).json({ error: "code exists" });
   const promo = {
     code,
@@ -1705,16 +1839,27 @@ app.post("/api/admin/promos", requireAuth, (req, res) => {
     createdAt: Date.now()
   };
   promos.push(promo);
-  savePromos(promos);
-  res.json({ ok: true });
+  savePromosConfig(cfg);
+  res.json({ ok: true, promo });
+});
+
+app.patch("/api/admin/promos/:code/toggle", requireAuth, (req, res) => {
+  const code = String(req.params.code).trim().toUpperCase();
+  const cfg = loadPromosConfig();
+  const target = cfg.codes.find((p) => p.code === code);
+  if (!target) return res.status(404).json({ error: "unknown code" });
+  target.disabled = !target.disabled;
+  savePromosConfig(cfg);
+  res.json({ ok: true, code: target.code, disabled: target.disabled });
 });
 
 app.delete("/api/admin/promos/:code", requireAuth, (req, res) => {
   const code = String(req.params.code).trim().toUpperCase();
-  const promos = loadPromos();
-  const next = promos.filter((p) => p.code !== code);
-  if (next.length === promos.length) return res.status(404).json({ error: "unknown code" });
-  savePromos(next);
+  const cfg = loadPromosConfig();
+  const next = cfg.codes.filter((p) => p.code !== code);
+  if (next.length === cfg.codes.length) return res.status(404).json({ error: "unknown code" });
+  cfg.codes = next;
+  savePromosConfig(cfg);
   res.json({ ok: true });
 });
 

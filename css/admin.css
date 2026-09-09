@@ -404,7 +404,40 @@
 .ord-tracking-row .btn { width: auto; padding: 14px 20px; }
 
 .admin-promo-form { margin-top: 16px; }
-.admin-promo-list { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.admin-promo-visibility-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: var(--sand);
+  border: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+.promo-vis-info { flex: 1; min-width: 240px; }
+.promo-vis-title { font-size: 13.5px; font-weight: 600; color: var(--ink); display: block; }
+.promo-vis-controls { display: flex; align-items: center; gap: 12px; }
+.promo-vis-badge {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  font-weight: 600;
+  border-radius: 2px;
+}
+.promo-vis-badge.badge-visible {
+  background: #e6f4ea;
+  color: #137333;
+  border: 1px solid #ceead6;
+}
+.promo-vis-badge.badge-hidden {
+  background: #fce8e6;
+  color: #c5221f;
+  border: 1px solid #fad2cf;
+}
+.admin-promo-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .promo-row {
   display: flex;
   align-items: center;
@@ -417,8 +450,32 @@
 }
 .promo-row strong { font-size: 14px; letter-spacing: 0.04em; }
 .promo-row span { color: var(--muted); font-size: 12.5px; }
-.promo-row.promo-off { opacity: 0.55; }
-.promo-row .admin-link-btn { font-size: 12px; margin-left: auto; }
+.promo-row.promo-off { opacity: 0.6; background: #fafafa; }
+.promo-badge {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.promo-badge.badge-active {
+  background: #e6f4ea;
+  color: #137333;
+}
+.promo-badge.badge-off {
+  background: #f1f3f4;
+  color: #5f6368;
+}
+.promo-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.promo-actions .admin-link-btn { font-size: 12px; }
+.promo-actions .promo-toggle-btn { color: var(--accent); }
+.promo-actions .promo-del { color: #b3261e; }
 
 @media (max-width: 760px) {
   .ord-body { grid-template-columns: 1fr; gap: 14px; }

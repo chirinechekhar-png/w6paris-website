@@ -3,6 +3,30 @@
 
   var FULFILL_KEYS = ["Mode de réception", "Receiving method", "Retrait prévu", "Scheduled pickup"];
   var promoState = { code: "", discount: 0 };
+  var promoCheckoutEnabled = true;
+
+  function updatePromoVisibility(visible) {
+    promoCheckoutEnabled = visible !== false;
+    var promoGroup = $("coPromoGroup");
+    var cardTitle = $("coCard3Title");
+    if (promoGroup) {
+      promoGroup.style.display = promoCheckoutEnabled ? "" : "none";
+    }
+    if (cardTitle) {
+      cardTitle.dataset.i18n = promoCheckoutEnabled ? "checkout.paymentCardTitle" : "checkout.paymentCardTitleWithoutPromo";
+      cardTitle.textContent = promoCheckoutEnabled
+        ? (t("checkout.paymentCardTitle") || (LANG === "en" ? "3. Promo code & Payment" : "3. Code avantage & Paiement"))
+        : (t("checkout.paymentCardTitleWithoutPromo") || (LANG === "en" ? "3. Payment" : "3. Paiement"));
+    }
+    if (!promoCheckoutEnabled && promoState.code) {
+      promoState = { code: "", discount: 0 };
+      var promoInput = $("coPromo");
+      if (promoInput) promoInput.value = "";
+      var promoMsg = $("coPromoMsg");
+      if (promoMsg) promoMsg.style.display = "none";
+      refreshShipping();
+    }
+  }
 
   function cleanOptions(raw) {
     var out = {};
@@ -79,6 +103,8 @@
       if (shipEl) shipEl.textContent = formatPrice(0);
       totalEl.textContent = formatPrice(sub - promoState.discount);
       $("coFreeShip").style.display = "none";
+      var shipDiscRow = $("coShipDiscRow");
+      if (shipDiscRow) shipDiscRow.style.display = "none";
       if (methodFeeEl) methodFeeEl.style.display = "none";
       return;
     }
@@ -96,14 +122,40 @@
     fetch("/api/shipping?" + qs)
       .then(function (r) { return r.json(); })
       .then(function (q) {
+        var methodData = method === "home" ? q.home : q.relay;
         var relayFee = (q.relay && typeof q.relay.fee === "number") ? q.relay.fee : 0;
         var homeFee = (q.home && typeof q.home.fee === "number") ? q.home.fee : 0;
         var fee = method === "home" ? homeFee : relayFee;
+        var baseFee = (methodData && typeof methodData.baseFee === "number") ? methodData.baseFee : fee;
+        var discount = (methodData && typeof methodData.discount === "number") ? methodData.discount : 0;
         var isFree = fee === 0;
 
-        if (shipEl) {
-          shipEl.textContent = isFree ? t("checkout.freeShip") : formatPrice(fee);
+        if (typeof q.promoCheckoutVisible === "boolean") {
+          updatePromoVisibility(q.promoCheckoutVisible);
         }
+
+        if (shipEl) {
+          if (discount > 0) {
+            shipEl.innerHTML = '<s style="opacity:.5; font-size:12px; font-weight:normal; margin-right:6px;">' + formatPrice(baseFee) + '</s>' + (isFree ? t("checkout.freeShip") : formatPrice(fee));
+          } else {
+            shipEl.textContent = isFree ? t("checkout.freeShip") : formatPrice(fee);
+          }
+        }
+
+        var shipDiscRow = $("coShipDiscRow");
+        var shipDiscLabel = $("coShipDiscLabel");
+        var shipDiscVal = $("coShipDisc");
+        if (shipDiscRow) {
+          if (discount > 0) {
+            shipDiscRow.style.display = "flex";
+            var prodLabel = q.discountLabel ? " (" + q.discountLabel + ")" : "";
+            if (shipDiscLabel) shipDiscLabel.textContent = t("checkout.shippingDiscount") + prodLabel;
+            if (shipDiscVal) shipDiscVal.textContent = "− " + formatPrice(discount);
+          } else {
+            shipDiscRow.style.display = "none";
+          }
+        }
+
         totalEl.textContent = formatPrice(sub + fee - promoState.discount);
 
         var freeEl = $("coFreeShip");
@@ -119,23 +171,56 @@
         var homeLabel = t("checkout.deliveryHome");
 
         if (relayBtn && q.relay) {
-          var rText = relayFee === 0 ? t("checkout.freeShip") : "+ " + formatPrice(relayFee);
-          relayBtn.textContent = relayLabel + " · " + rText;
+          var rText = "";
+          var rBase = typeof q.relay.baseFee === "number" ? q.relay.baseFee : q.relay.fee;
+          var rDisc = typeof q.relay.discount === "number" ? q.relay.discount : 0;
+          if (relayFee === 0) {
+            rText = t("checkout.freeShip");
+            if (rDisc > 0) {
+              rText += ' <span style="font-size:11px;opacity:.7;">(' + t("checkout.insteadOf") + ' ' + formatPrice(rBase) + ')</span>';
+            }
+          } else {
+            rText = "+ " + formatPrice(relayFee);
+            if (rDisc > 0) {
+              rText += ' <span style="font-size:11px;opacity:.7;">(' + t("checkout.insteadOf") + ' ' + formatPrice(rBase) + ')</span>';
+            }
+          }
+          relayBtn.innerHTML = relayLabel + " · " + rText;
         }
+
         if (homeBtn && q.home) {
-          var hText = homeFee === 0 ? t("checkout.freeShip") : "+ " + formatPrice(homeFee);
-          homeBtn.textContent = homeLabel + " · " + hText;
+          var hText = "";
+          var hBase = typeof q.home.baseFee === "number" ? q.home.baseFee : q.home.fee;
+          var hDisc = typeof q.home.discount === "number" ? q.home.discount : 0;
+          if (homeFee === 0) {
+            hText = t("checkout.freeShip");
+            if (hDisc > 0) {
+              hText += ' <span style="font-size:11px;opacity:.7;">(' + t("checkout.insteadOf") + ' ' + formatPrice(hBase) + ')</span>';
+            }
+          } else {
+            hText = "+ " + formatPrice(homeFee);
+            if (hDisc > 0) {
+              hText += ' <span style="font-size:11px;opacity:.7;">(' + t("checkout.insteadOf") + ' ' + formatPrice(hBase) + ')</span>';
+            }
+          }
+          homeBtn.innerHTML = homeLabel + " · " + hText;
         }
+
         if (methodFeeEl) {
           methodFeeEl.style.display = "block";
+          var curData = method === "home" ? q.home : q.relay;
+          var curFee = method === "home" ? homeFee : relayFee;
+          var curDisc = curData && typeof curData.discount === "number" ? curData.discount : 0;
+          var discNote = curDisc > 0 ? (LANG === "fr" ? " — Remise de " + formatPrice(curDisc) + " appliquée" : " — " + formatPrice(curDisc) + " discount applied") : "";
+
           if (method === "relay") {
             methodFeeEl.textContent = relayFee === 0
-              ? (LANG === "fr" ? "Point Relais · Livraison offerte" : "Pickup point · Free delivery")
-              : (LANG === "fr" ? "Point Relais · +" + formatPrice(relayFee) + " calculés au poids" : "Pickup point · +" + formatPrice(relayFee) + " by weight");
+              ? (LANG === "fr" ? "Point Relais · Livraison offerte" + discNote : "Pickup point · Free delivery" + discNote)
+              : (LANG === "fr" ? "Point Relais · +" + formatPrice(relayFee) + discNote : "Pickup point · +" + formatPrice(relayFee) + discNote);
           } else {
-            methodFeeEl.textContent = LANG === "fr"
-              ? "Livraison à domicile · +" + formatPrice(homeFee) + " calculés au poids"
-              : "Home delivery · +" + formatPrice(homeFee) + " by weight";
+            methodFeeEl.textContent = homeFee === 0
+              ? (LANG === "fr" ? "Livraison à domicile · Offerte" + discNote : "Home delivery · Free" + discNote)
+              : (LANG === "fr" ? "Livraison à domicile · +" + formatPrice(homeFee) + discNote : "Home delivery · +" + formatPrice(homeFee) + discNote);
           }
         }
       })
@@ -151,6 +236,7 @@
   }
 
   function applyPromo() {
+    if (!promoCheckoutEnabled) return;
     var input = $("coPromo");
     var code = input.value.trim();
     var msg = $("coPromoMsg");
@@ -341,6 +427,15 @@
         if (!d.ok || !d.customer) return;
         if (!$("coName").value) $("coName").value = d.customer.name || "";
         if (!$("coEmail").value) $("coEmail").value = d.customer.email || "";
+      })
+      .catch(function () {});
+
+    fetch("/api/promo/config")
+      .then(function (r) { return r.json(); })
+      .then(function (q) {
+        if (q && typeof q.checkoutVisible === "boolean") {
+          updatePromoVisibility(q.checkoutVisible);
+        }
       })
       .catch(function () {});
 
