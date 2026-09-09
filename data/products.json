@@ -14,7 +14,7 @@
       "fr": "L'art du parfum réinventé",
       "en": "The art of fragrance, reinvented"
     },
-    "price": 199.99,
+    "price": 205.99,
     "compareAt": null,
     "badge": null,
     "weightKg": 3.5,
@@ -128,7 +128,7 @@
       "fr": "La signature olfactive absolue",
       "en": "The absolute olfactory signature"
     },
-    "price": 249,
+    "price": 275,
     "compareAt": null,
     "badge": null,
     "weightKg": 3,
@@ -240,7 +240,7 @@
       "fr": "Meilleure vente",
       "en": "Best seller"
     },
-    "price": 89.99,
+    "price": 96.99,
     "compareAt": null,
     "weightKg": 0.9,
     "images": [
@@ -387,12 +387,12 @@
         "values": [
           {
             "label": "10 ml",
-            "price": 18,
+            "price": 23.99,
             "weightKg": 0.15
           },
           {
             "label": "100 ml",
-            "price": 40,
+            "price": 68.99,
             "weightKg": 0.35
           }
         ]
@@ -456,12 +456,12 @@
         "values": [
           {
             "label": "10 ml",
-            "price": 18,
+            "price": 23.99,
             "weightKg": 0.15
           },
           {
             "label": "100 ml",
-            "price": 40,
+            "price": 68.99,
             "weightKg": 0.35
           }
         ]
@@ -525,12 +525,12 @@
         "values": [
           {
             "label": "10 ml",
-            "price": 18,
+            "price": 23.99,
             "weightKg": 0.15
           },
           {
             "label": "100 ml",
-            "price": 40,
+            "price": 68.99,
             "weightKg": 0.35
           }
         ]
@@ -594,12 +594,12 @@
         "values": [
           {
             "label": "10 ml",
-            "price": 18,
+            "price": 23.99,
             "weightKg": 0.15
           },
           {
             "label": "100 ml",
-            "price": 40,
+            "price": 68.99,
             "weightKg": 0.35
           }
         ]
@@ -663,12 +663,12 @@
         "values": [
           {
             "label": "10 ml",
-            "price": 18,
+            "price": 23.99,
             "weightKg": 0.15
           },
           {
             "label": "100 ml",
-            "price": 40,
+            "price": 68.99,
             "weightKg": 0.35
           }
         ]
@@ -735,12 +735,12 @@
         "values": [
           {
             "label": "10 ml",
-            "price": 18,
+            "price": 23.99,
             "weightKg": 0.15
           },
           {
             "label": "100 ml",
-            "price": 40,
+            "price": 68.99,
             "weightKg": 0.35
           }
         ]
@@ -807,12 +807,12 @@
         "values": [
           {
             "label": "10 ml",
-            "price": 18,
+            "price": 23.99,
             "weightKg": 0.15
           },
           {
             "label": "100 ml",
-            "price": 40,
+            "price": 68.99,
             "weightKg": 0.35
           }
         ]

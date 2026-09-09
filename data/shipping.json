@@ -1,14 +1,20 @@
 {
   "carrier": "Mondial Relay",
-  "freeFrom": 150,
+  "freeFrom": null,
   "freeByCountry": {
     "fr": [
       "diffuser",
-      "bundle"
+      "bundle",
+      "oil"
     ],
-    "de": [
-      "diffuser",
-      "bundle"
+    "be": [
+      "oil"
+    ],
+    "lu": [
+      "oil"
+    ],
+    "nl": [
+      "oil"
     ]
   },
   "zones": {

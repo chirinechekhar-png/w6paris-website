@@ -39,8 +39,13 @@ function loadShippingConfig() {
   } catch {
     shippingConfigCache = {
       carrier: "Mondial Relay",
-      freeFrom: 150,
-      freeByCountry: { fr: ["diffuser", "bundle"], de: ["diffuser", "bundle"] },
+      freeFrom: null,
+      freeByCountry: {
+        fr: ["diffuser", "bundle", "oil"],
+        be: ["oil"],
+        lu: ["oil"],
+        nl: ["oil"]
+      },
       zones: {},
       countryZones: {}
     };
@@ -115,21 +120,25 @@ function orderProductTypes(orderItems) {
   return [...types];
 }
 
-/* Is shipping free because the cart contains a "free" product type for this country? */
-function isFreeByType(country, productTypes) {
+/* Is Relay shipping free for this country based on the product types in the cart? */
+function isRelayFree(country, productTypes) {
   const cfg = loadShippingConfig();
-  const types = productTypes || [];
-  if (!types.length) return false;
-  const list = (cfg.freeByCountry || {})[countryCode(country)];
-  return Array.isArray(list) && list.some((t) => types.includes(t));
+  const c = countryCode(country);
+  const types = Array.isArray(productTypes) ? productTypes : [];
+  if (!types.length) return c === "fr";
+  const allowed = (cfg.freeByCountry || {})[c];
+  if (!Array.isArray(allowed) || !allowed.length) return false;
+  return types.every((t) => allowed.includes(t));
 }
+
+const isFreeByType = isRelayFree;
 
 /* Shipping fee in € for a country + method (relay|home) + weight + subtotal + types.
    Returns 0 when free. Falls back to the last (heaviest) tier if above the table. */
 function shippingFee(country, method, weightKg, subtotal, productTypes) {
   const cfg = loadShippingConfig();
-  if (Number(subtotal) >= Number(cfg.freeFrom || 0)) return 0;
-  if (isFreeByType(country, productTypes)) return 0;
+  if (cfg.freeFrom && Number(subtotal) >= Number(cfg.freeFrom)) return 0;
+  if (method === "relay" && isRelayFree(country, productTypes)) return 0;
   const zone = shippingZone(country);
   const zoneCfg = (cfg.zones || {})[zone] || { relay: [], home: [] };
   const table = method === "home" ? zoneCfg.home : zoneCfg.relay;
@@ -139,16 +148,13 @@ function shippingFee(country, method, weightKg, subtotal, productTypes) {
 }
 
 function shippingInfo(country, method, weightKg, subtotal, productTypes) {
-  const cfg = loadShippingConfig();
-  const free = Number(subtotal) >= Number(cfg.freeFrom || 0);
+  const fee = shippingFee(country, method, weightKg, subtotal, productTypes);
   const zone = shippingZone(country);
-  const freeType = !free && isFreeByType(country, productTypes);
   return {
     zone,
-    freeFrom: cfg.freeFrom,
-    freeType,
     weightKg,
-    fee: free || freeType ? 0 : shippingFee(country, method, weightKg, subtotal, productTypes)
+    fee,
+    isFree: fee === 0
   };
 }
 
@@ -536,16 +542,14 @@ app.get("/api/shipping", (req, res) => {
   const cfg = loadShippingConfig();
   const zone = shippingZone(country);
   const zoneCfg = (cfg.zones || {})[zone] || { relay: [], home: [] };
-  const freeFrom = Number(subtotal) >= Number(cfg.freeFrom || 0);
-  const freeType = !freeFrom && isFreeByType(country, types);
+  const relayFee = shippingFee(country, "relay", weightKg, subtotal, types);
+  const homeFee = shippingFee(country, "home", weightKg, subtotal, types);
   res.json({
     zone,
-    freeFrom: cfg.freeFrom,
-    free: freeFrom,
-    freeType,
+    freeFrom: cfg.freeFrom || null,
     weightKg,
-    relay: { fee: shippingFee(country, "relay", weightKg, subtotal, types), tiers: zoneCfg.relay || [] },
-    home: { fee: shippingFee(country, "home", weightKg, subtotal, types), tiers: zoneCfg.home || [] },
+    relay: { fee: relayFee, isFree: relayFee === 0, tiers: zoneCfg.relay || [] },
+    home: { fee: homeFee, isFree: homeFee === 0, tiers: zoneCfg.home || [] },
     method
   });
 });
@@ -1378,7 +1382,9 @@ app.put("/api/admin/shipping", requireAuth, (req, res) => {
   const b = (req.body || {}).config;
   if (!b || typeof b !== "object") return res.status(400).json({ error: "config required" });
   const cfg = loadShippingConfig();
-  if (typeof b.freeFrom === "number" && Number.isFinite(b.freeFrom) && b.freeFrom >= 0) {
+  if (b.freeFrom === null || b.freeFrom === undefined || b.freeFrom === 0) {
+    cfg.freeFrom = null;
+  } else if (typeof b.freeFrom === "number" && Number.isFinite(b.freeFrom) && b.freeFrom > 0) {
     cfg.freeFrom = Math.round(b.freeFrom * 100) / 100;
   }
   if (b.freeByCountry && typeof b.freeByCountry === "object") {

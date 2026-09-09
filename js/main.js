@@ -114,7 +114,6 @@ function renderCart() {
   if (!wrap) return;
 
   const freeShipEl = document.getElementById("cartFreeShip");
-  const threshold = 150;
   if (cart.length === 0) {
     wrap.innerHTML = "";
     if (empty) empty.style.display = "block";
@@ -151,26 +150,33 @@ function renderCart() {
   if (totalEl) totalEl.textContent = formatPrice(total);
 
   if (freeShipEl) {
-    freeShipEl.style.display = "block";
-    const remaining = Math.max(0, Math.round((threshold - total) * 100) / 100);
-    const pct = Math.min(100, Math.round((total / threshold) * 100));
-    if (remaining > 0) {
-      const msg = (LANG === "fr")
-        ? `Plus que <strong>${formatPrice(remaining)}</strong> pour profiter de la <strong>livraison offerte</strong> !`
-        : `Add <strong>${formatPrice(remaining)}</strong> more to enjoy <strong>free shipping</strong>!`;
-      freeShipEl.innerHTML = `
-        <div class="cart-fs-text">${msg}</div>
-        <div class="cart-fs-track"><div class="cart-fs-bar" style="width: ${pct}%"></div></div>
-      `;
+    const hasDiffusers = cart.some((it) => {
+      const p = getProduct(it.handle) || {};
+      return p.type === "diffuser" || p.type === "bundle";
+    });
+    const hasOnlyOils = cart.length > 0 && cart.every((it) => {
+      const p = getProduct(it.handle) || {};
+      return p.type === "oil";
+    });
+
+    let msg = "";
+    if (hasOnlyOils) {
+      msg = (LANG === "fr")
+        ? `✨ <strong>Point Relais offert</strong> en France, Belgique, Luxembourg & Pays-Bas !`
+        : `✨ <strong>Free pickup point delivery</strong> in France, Belgium, Luxembourg & Netherlands!`;
+    } else if (hasDiffusers) {
+      msg = (LANG === "fr")
+        ? `✨ <strong>Point Relais offert</strong> en France métropolitaine !`
+        : `✨ <strong>Free pickup point delivery</strong> in France!`;
     } else {
-      const msg = (LANG === "fr")
-        ? `✨ <strong>Livraison offerte débloquée</strong> sur votre commande !`
-        : `✨ <strong>Free shipping unlocked</strong> on your order!`;
-      freeShipEl.innerHTML = `
-        <div class="cart-fs-text cart-fs-unlocked">${msg}</div>
-        <div class="cart-fs-track"><div class="cart-fs-bar full" style="width: 100%"></div></div>
-      `;
+      msg = (LANG === "fr")
+        ? `✨ <strong>Point Relais offert</strong> selon éligibilité`
+        : `✨ <strong>Free pickup point delivery</strong> by eligibility`;
     }
+    freeShipEl.style.display = "block";
+    freeShipEl.innerHTML = `
+      <div class="cart-fs-text cart-fs-unlocked">${msg}</div>
+    `;
   }
 }
 
@@ -304,10 +310,10 @@ window.quickAdd = function (handle) {
   if (!p) return;
   const opts = {};
   const opt = (p.options || []).find((x) => !x.free);
-  let price = p.type === "oil" ? 18 : p.price;
+  const sizeOpt = (p.options || []).find((x) => x.key === "size");
+  let price = p.type === "oil" ? (sizeOpt && sizeOpt.values && sizeOpt.values[0] ? sizeOpt.values[0].price : 23.99) : p.price;
   if (opt && opt.values && opt.values.length) {
     opts[opt.name[LANG]] = opt.values[0].label;
-    const sizeOpt = (p.options || []).find((x) => x.key === "size");
     if (sizeOpt && sizeOpt.values && sizeOpt.values[0]) {
       price = sizeOpt.values[0].price || price;
     }
@@ -317,7 +323,11 @@ window.quickAdd = function (handle) {
 
 /* ---------- Product card ---------- */
 function basePrice(p) {
-  return (p.type === "oil") ? 18 : p.price;
+  if (p.type === "oil") {
+    const sizeOpt = (p.options || []).find((x) => x.key === "size");
+    return (sizeOpt && sizeOpt.values && sizeOpt.values[0] ? sizeOpt.values[0].price : 23.99);
+  }
+  return p.price;
 }
 
 function productCard(p, opts = {}) {

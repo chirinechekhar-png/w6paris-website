@@ -7,7 +7,7 @@ const PRODUCTS = [
     name: { fr: "Diffuseur i6", en: "Diffuser i6" },
     family: { fr: "Diffuseur", en: "Diffuser" },
     tagline: { fr: "L'art du parfum réinventé", en: "The art of fragrance, reinvented" },
-    price: 199.99,
+    price: 205.99,
     weightKg: 3.5,
     stock: {"Noir":1,"Gris":1},
     images: ["images/i6-new-1.webp", "images/i6-new-2.webp", "images/i6-new-3.png", "images/i6-new-4.png", "images/i6-new-5.jpg"],
@@ -61,7 +61,7 @@ const PRODUCTS = [
     name: { fr: "Diffuseur i7", en: "Diffuser i7" },
     family: { fr: "Diffuseur", en: "Diffuser" },
     tagline: { fr: "La signature olfactive absolue", en: "The absolute olfactory signature" },
-    price: 249.0,
+    price: 275.0,
     weightKg: 3,
     stock: {"Gris":18},
     images: ["images/i7-new-1.webp", "images/i7-new-2.jpg", "images/i7-new-3.jpg", "images/i7-new-4.jpg", "images/i7-new-5.jpg", "images/i7-new-6.jpg", "images/i7-new-7.webp", "images/i7-new-8.webp"],
@@ -113,7 +113,7 @@ const PRODUCTS = [
     family: { fr: "Diffuseur", en: "Diffuser" },
     tagline: { fr: "L'élégance qui vous suit partout", en: "Elegance that follows you everywhere" },
     badge: { fr: "Meilleure vente", en: "Best seller" },
-    price: 89.99,
+    price: 96.99,
     weightKg: 0.9,
     stock: {"Noir":23,"Gris":3},
     images: ["images/nomade-new-1.jpg", "images/nomade-new-2.jpg", "images/nomade-new-3.jpg", "images/nomade-new-4.jpg", "images/nomade-new-5.jpg", "images/nomade-new-6.jpg", "images/nomade-video.mp4"],
@@ -174,8 +174,8 @@ const PRODUCTS = [
         key: "size",
         name: { fr: "Format", en: "Size" },
         values: [
-          { label: "10 ml", price: 18, weightKg: 0.15 },
-          { label: "100 ml", price: 40, weightKg: 0.35 }
+          { label: "10 ml", price: 23.99, weightKg: 0.15 },
+          { label: "100 ml", price: 68.99, weightKg: 0.35 }
         ]
       }
     ],
@@ -203,8 +203,8 @@ const PRODUCTS = [
         key: "size",
         name: { fr: "Format", en: "Size" },
         values: [
-          { label: "10 ml", price: 18, weightKg: 0.15 },
-          { label: "100 ml", price: 40, weightKg: 0.35 }
+          { label: "10 ml", price: 23.99, weightKg: 0.15 },
+          { label: "100 ml", price: 68.99, weightKg: 0.35 }
         ]
       }
     ],
@@ -232,8 +232,8 @@ const PRODUCTS = [
         key: "size",
         name: { fr: "Format", en: "Size" },
         values: [
-          { label: "10 ml", price: 18, weightKg: 0.15 },
-          { label: "100 ml", price: 40, weightKg: 0.35 }
+          { label: "10 ml", price: 23.99, weightKg: 0.15 },
+          { label: "100 ml", price: 68.99, weightKg: 0.35 }
         ]
       }
     ],
@@ -261,8 +261,8 @@ const PRODUCTS = [
         key: "size",
         name: { fr: "Format", en: "Size" },
         values: [
-          { label: "10 ml", price: 18, weightKg: 0.15 },
-          { label: "100 ml", price: 40, weightKg: 0.35 }
+          { label: "10 ml", price: 23.99, weightKg: 0.15 },
+          { label: "100 ml", price: 68.99, weightKg: 0.35 }
         ]
       }
     ],
@@ -290,8 +290,8 @@ const PRODUCTS = [
         key: "size",
         name: { fr: "Format", en: "Size" },
         values: [
-          { label: "10 ml", price: 18, weightKg: 0.15 },
-          { label: "100 ml", price: 40, weightKg: 0.35 }
+          { label: "10 ml", price: 23.99, weightKg: 0.15 },
+          { label: "100 ml", price: 68.99, weightKg: 0.35 }
         ]
       }
     ],
@@ -320,8 +320,8 @@ const PRODUCTS = [
         key: "size",
         name: { fr: "Format", en: "Size" },
         values: [
-          { label: "10 ml", price: 18, weightKg: 0.15 },
-          { label: "100 ml", price: 40, weightKg: 0.35 }
+          { label: "10 ml", price: 23.99, weightKg: 0.15 },
+          { label: "100 ml", price: 68.99, weightKg: 0.35 }
         ]
       }
     ],
@@ -350,8 +350,8 @@ const PRODUCTS = [
         key: "size",
         name: { fr: "Format", en: "Size" },
         values: [
-          { label: "10 ml", price: 18, weightKg: 0.15 },
-          { label: "100 ml", price: 40, weightKg: 0.35 }
+          { label: "10 ml", price: 23.99, weightKg: 0.15 },
+          { label: "100 ml", price: 68.99, weightKg: 0.35 }
         ]
       }
     ],

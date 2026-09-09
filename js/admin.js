@@ -25,7 +25,11 @@ function typeLabel(t) {
 }
 
 function priceLabel(p) {
-  if (p.type === "oil") return "dès 18,00 €";
+  if (p.type === "oil") {
+    const sizeOpt = (p.options || []).find((x) => x.key === "size");
+    const minPrice = (sizeOpt && sizeOpt.values && sizeOpt.values[0] && sizeOpt.values[0].price) || 23.99;
+    return "dès " + minPrice.toFixed(2).replace(".", ",") + " €";
+  }
   if (p.compareAt) return p.price.toFixed(2).replace(".", ",") + " €";
   return p.price.toFixed(2).replace(".", ",") + " €";
 }

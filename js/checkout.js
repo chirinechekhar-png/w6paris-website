@@ -96,28 +96,47 @@
     fetch("/api/shipping?" + qs)
       .then(function (r) { return r.json(); })
       .then(function (q) {
-        var fee = (method === "home" ? q.home : q.relay).fee;
-        var free = q.free || q.freeType;
-        if (shipEl) shipEl.textContent = free ? t("checkout.freeShip") : formatPrice(fee);
-        totalEl.textContent = formatPrice(sub + (free ? 0 : fee) - promoState.discount);
+        var relayFee = (q.relay && typeof q.relay.fee === "number") ? q.relay.fee : 0;
+        var homeFee = (q.home && typeof q.home.fee === "number") ? q.home.fee : 0;
+        var fee = method === "home" ? homeFee : relayFee;
+        var isFree = fee === 0;
+
+        if (shipEl) {
+          shipEl.textContent = isFree ? t("checkout.freeShip") : formatPrice(fee);
+        }
+        totalEl.textContent = formatPrice(sub + fee - promoState.discount);
+
         var freeEl = $("coFreeShip");
         if (freeEl) {
-          freeEl.style.display = free ? "block" : "none";
-          freeEl.textContent = t("checkout.freeShip");
+          freeEl.style.display = isFree ? "block" : "none";
+          freeEl.textContent = t("checkout.freeShip") + " !";
         }
+
         var relayBtn = document.querySelector('#coMethod button[data-method="relay"]');
         var homeBtn = document.querySelector('#coMethod button[data-method="home"]');
+
+        var relayLabel = t("checkout.deliveryRelay");
+        var homeLabel = t("checkout.deliveryHome");
+
         if (relayBtn && q.relay) {
-          var rPrice = free ? t("checkout.freeShip") : formatPrice(q.relay.fee);
-          relayBtn.textContent = t("checkout.deliveryRelay") + " · " + rPrice;
+          var rText = relayFee === 0 ? t("checkout.freeShip") : "+ " + formatPrice(relayFee);
+          relayBtn.textContent = relayLabel + " · " + rText;
         }
         if (homeBtn && q.home) {
-          var hPrice = free ? t("checkout.freeShip") : formatPrice(q.home.fee);
-          homeBtn.textContent = t("checkout.deliveryHome") + " · " + hPrice;
+          var hText = homeFee === 0 ? t("checkout.freeShip") : "+ " + formatPrice(homeFee);
+          homeBtn.textContent = homeLabel + " · " + hText;
         }
         if (methodFeeEl) {
           methodFeeEl.style.display = "block";
-          methodFeeEl.textContent = "Colis préparé avec soin · Suivi par e-mail dès expédition";
+          if (method === "relay") {
+            methodFeeEl.textContent = relayFee === 0
+              ? (LANG === "fr" ? "Point Relais · Livraison offerte" : "Pickup point · Free delivery")
+              : (LANG === "fr" ? "Point Relais · +" + formatPrice(relayFee) + " calculés au poids" : "Pickup point · +" + formatPrice(relayFee) + " by weight");
+          } else {
+            methodFeeEl.textContent = LANG === "fr"
+              ? "Livraison à domicile · +" + formatPrice(homeFee) + " calculés au poids"
+              : "Home delivery · +" + formatPrice(homeFee) + " by weight";
+          }
         }
       })
       .catch(function () { /* server unavailable -> shipping 0 */ });
