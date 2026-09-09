@@ -371,8 +371,8 @@ const PRODUCTS = [
     name: { fr: "Le Pack Duo", en: "The Duo Pack" },
     family: { fr: "2 Diffuseurs Nomade + 7 senteurs offertes", en: "2 Nomade Diffusers + 7 scents free" },
     tagline: { fr: "À deux, le parfum se partage", en: "Fragrance, best shared" },
-    price: 179.99,
-    compareAt: 305.98,
+    price: 189.99,
+    compareAt: 361.91,
     weightKg: 2.85,
     stock: 3,
     badge: { fr: "Offre exclusive", en: "Exclusive offer" },
@@ -388,7 +388,7 @@ const PRODUCTS = [
     features: [
       { fr: "2 Diffuseurs Nomade (Noir ou Gris)", en: "2 Nomade Diffusers (Noir or Gris)" },
       { fr: "Les 7 fragrances de la collection en 10 ml offertes", en: "All 7 fragrances of the collection in 10 ml, free" },
-      { fr: "Économisez 125,99 €", en: "Save €125.99" }
+      { fr: "Économisez 171,92 €", en: "Save €171.92" }
     ],
     options: [
       {

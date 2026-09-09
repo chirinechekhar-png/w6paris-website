@@ -166,7 +166,7 @@ const I18N = {
     bundle: {
       include1: "2 Diffuseurs Nomade (Noir ou Gris)",
       include2: "Les 7 fragrances de la collection en 10 ml offertes",
-      include3: "Économisez 125,99 €",
+      include3: "Économisez 171,92 €",
       freeLabel: "Senteurs offertes"
     },
     config: {
@@ -423,7 +423,7 @@ const I18N = {
     bundle: {
       include1: "2 Nomade Diffusers (Noir or Gris)",
       include2: "All 7 fragrances of the collection in 10 ml, free",
-      include3: "Save €125.99",
+      include3: "Save €171.92",
       freeLabel: "Scents included free"
     },
     config: {
