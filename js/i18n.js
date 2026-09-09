@@ -234,7 +234,7 @@ const I18N = {
       q7: "Puis-je retourner un produit ?",
       a7: "Oui. Vous disposez de 14 jours après réception pour retourner un produit dans son état d'origine et obtenir un remboursement.",
       q8: "Vers quels pays assurez-vous la livraison ?",
-      a8: "Nous expédions dans 19 pays d'Europe : France métropolitaine, Belgique, Luxembourg, Pays-Bas, Allemagne, Espagne, Italie, Portugal, Pologne, Autriche, Irlande, Danemark, Suède, Finlande, République Tchèque, Slovaquie, Hongrie, Roumanie et Grèce. Vous pouvez choisir entre la livraison en Point Relais ou directement à domicile lors de votre commande. La livraison est offerte dès 150 € d'achat."
+      a8: "Nous expédions dans 19 pays d'Europe : France métropolitaine, Belgique, Luxembourg, Pays-Bas, Allemagne, Espagne, Italie, Portugal, Pologne, Autriche, Irlande, Danemark, Suède, Finlande, République Tchèque, Slovaquie, Hongrie, Roumanie et Grèce. Vous pouvez choisir entre la livraison en Point Relais ou directement à domicile lors de votre commande. La livraison en Point Relais est offerte en France métropolitaine (et en Belgique, Luxembourg et Pays-Bas sur les fragrances)."
     },
     shipping: {
       title: "Livraison",
@@ -243,8 +243,8 @@ const I18N = {
       p1: "Nous expédions nos créations dans 19 pays européens : France métropolitaine, Belgique, Luxembourg, Pays-Bas, Allemagne, Espagne, Italie, Portugal, Pologne, Autriche, Irlande, Danemark, Suède, Finlande, République Tchèque, Slovaquie, Hongrie, Roumanie et Grèce.",
       h2: "Délais de préparation & d'acheminement",
       p2: "Les commandes sont préparées et expédiées sous 24 à 48 heures ouvrées. Le délai moyen d'acheminement est de 2 à 5 jours ouvrés selon la destination.",
-      h3: "Frais de port & Livraison offerte",
-      p3: "Les frais d'expédition sont calculés automatiquement au panier selon le poids du colis, la destination et le mode choisi (Point Relais ou Domicile). La livraison est offerte dès 150 € d'achat.",
+      h3: "Frais de livraison",
+      p3: "Les frais d'expédition sont calculés automatiquement au panier selon le poids du colis, la destination et le mode choisi (Point Relais ou Domicile). La livraison en Point Relais est offerte en France métropolitaine (et en Belgique, Luxembourg et Pays-Bas sur les fragrances).",
       h4: "Suivi en direct",
       p4: "Dès l'expédition de votre commande, vous recevez un e-mail avec votre numéro de suivi pour suivre l'acheminement de votre colis en temps réel."
     },
@@ -492,7 +492,7 @@ const I18N = {
       q7: "Can I return a product?",
       a7: "Yes. You have 14 days after receipt to return a product in its original condition and obtain a refund.",
       q8: "Which countries do you deliver to?",
-      a8: "We currently deliver to 19 European countries: Metropolitan France, Belgium, Luxembourg, the Netherlands, Germany, Spain, Italy, Portugal, Poland, Austria, Ireland, Denmark, Sweden, Finland, the Czech Republic, Slovakia, Hungary, Romania, and Greece. You can choose between pickup point delivery or home delivery at checkout. Free shipping is automatically applied on orders over €150."
+      a8: "We currently deliver to 19 European countries: Metropolitan France, Belgium, Luxembourg, the Netherlands, Germany, Spain, Italy, Portugal, Poland, Austria, Ireland, Denmark, Sweden, Finland, the Czech Republic, Slovakia, Hungary, Romania, and Greece. You can choose between pickup point delivery or home delivery at checkout. Pickup point delivery is complimentary in France (and in Belgium, Luxembourg, and the Netherlands for fragrances)."
     },
     shipping: {
       title: "Shipping",
@@ -501,8 +501,8 @@ const I18N = {
       p1: "We ship our creations to 19 European countries: France, Belgium, Luxembourg, the Netherlands, Germany, Spain, Italy, Portugal, Poland, Austria, Ireland, Denmark, Sweden, Finland, Czech Republic, Slovakia, Hungary, Romania, and Greece.",
       h2: "Preparation & Transit Times",
       p2: "Orders are prepared and dispatched within 24 to 48 business hours. Estimated delivery time is 2 to 5 business days depending on destination.",
-      h3: "Shipping Costs & Free Delivery",
-      p3: "Shipping fees are calculated automatically at checkout based on package weight, country, and selected method (Pickup Point or Home). Free shipping is offered on orders over €150.",
+      h3: "Shipping Fees",
+      p3: "Shipping fees are calculated automatically at checkout based on package weight, country, and selected method (Pickup Point or Home). Pickup point delivery is complimentary in France (and in Belgium, Luxembourg, and the Netherlands for fragrances).",
       h4: "Live Order Tracking",
       p4: "As soon as your parcel ships, you receive an automated confirmation email with your tracking number to monitor delivery in real time."
     },

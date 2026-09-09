@@ -162,16 +162,16 @@ function renderCart() {
     let msg = "";
     if (hasOnlyOils) {
       msg = (LANG === "fr")
-        ? `✨ <strong>Point Relais offert</strong> en France, Belgique, Luxembourg & Pays-Bas !`
-        : `✨ <strong>Free pickup point delivery</strong> in France, Belgium, Luxembourg & Netherlands!`;
+        ? `<strong>Point Relais offert</strong> en France, Belgique, Luxembourg & Pays-Bas`
+        : `<strong>Complimentary pickup point delivery</strong> in France, Belgium, Luxembourg & Netherlands`;
     } else if (hasDiffusers) {
       msg = (LANG === "fr")
-        ? `✨ <strong>Point Relais offert</strong> en France métropolitaine !`
-        : `✨ <strong>Free pickup point delivery</strong> in France!`;
+        ? `<strong>Point Relais offert</strong> en France métropolitaine`
+        : `<strong>Complimentary pickup point delivery</strong> in France`;
     } else {
       msg = (LANG === "fr")
-        ? `✨ <strong>Point Relais offert</strong> selon éligibilité`
-        : `✨ <strong>Free pickup point delivery</strong> by eligibility`;
+        ? `<strong>Point Relais offert</strong> selon éligibilité`
+        : `<strong>Complimentary pickup point delivery</strong> based on location`;
     }
     freeShipEl.style.display = "block";
     freeShipEl.innerHTML = `

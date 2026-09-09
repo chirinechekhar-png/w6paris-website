@@ -780,7 +780,7 @@ function sendShippingEmail(order) {
   const html = `
     <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:24px; line-height:1.6;">
       <h1 style="color:#1c1c1c; font-size:24px; font-weight:normal; margin-bottom:8px; letter-spacing:0.04em;">W6 Paris</h1>
-      <h2 style="color:#9a7b3f; margin-top:0; font-size:20px;">Bonne nouvelle, votre commande a été expédiée ! 📦</h2>
+      <h2 style="color:#9a7b3f; margin-top:0; font-size:20px;">Bonne nouvelle, votre commande a été expédiée !</h2>
       <p>Bonjour <strong>${order.customer.name}</strong>,</p>
       <p>Votre commande <strong>${order.id}</strong> a été soigneusement préparée et vient d'être expédiée.</p>
       
@@ -806,7 +806,7 @@ function sendShippingEmail(order) {
     from,
     replyTo,
     to: order.customer.email,
-    subject: `Votre commande ${order.id} a été expédiée ! 📦 — W6 Paris`,
+    subject: `Votre commande ${order.id} a été expédiée ! — W6 Paris`,
     html
   }).then(res => {
     if (res.error) console.error("[Email] Shipping notification failed:", res.error);
@@ -827,12 +827,12 @@ function sendReadyForPickupEmail(order) {
   const html = `
     <div style="font-family:sans-serif; color:#1c1c1c; max-width:600px; margin:0 auto; padding:24px; line-height:1.6;">
       <h1 style="color:#1c1c1c; font-size:24px; font-weight:normal; margin-bottom:8px; letter-spacing:0.04em;">W6 Paris</h1>
-      <h2 style="color:#9a7b3f; margin-top:0; font-size:20px;">Votre commande est prête au showroom ! ✨</h2>
+      <h2 style="color:#9a7b3f; margin-top:0; font-size:20px;">Votre commande est prête au showroom !</h2>
       <p>Bonjour <strong>${order.customer.name}</strong>,</p>
       <p>Votre commande <strong>${order.id}</strong> a bien été préparée et vous attend dans notre boutique-showroom.</p>
 
       <div style="background:#f9f8f6; border:1px solid #ede8e0; border-radius:8px; padding:20px; margin:24px 0;">
-        <h3 style="margin-top:0; color:#1c1c1c; font-size:16px;">📍 Adresse de retrait</h3>
+        <h3 style="margin-top:0; color:#1c1c1c; font-size:16px;">Adresse de retrait</h3>
         <p style="margin:4px 0; font-size:15px; font-weight:600; color:#1c1c1c;">W6 Paris — Boutique Showroom</p>
         <p style="margin:4px 0; color:#555;">12 Rue Boulard, 75014 Paris</p>
         <p style="margin:4px 0; color:#555;"><strong>Horaires :</strong> Du lundi au samedi, de 10h à 19h</p>
@@ -851,7 +851,7 @@ function sendReadyForPickupEmail(order) {
     from,
     replyTo,
     to: order.customer.email,
-    subject: `Votre commande ${order.id} est prête au showroom ! ✨ — W6 Paris`,
+    subject: `Votre commande ${order.id} est prête au showroom ! — W6 Paris`,
     html
   }).then(res => {
     if (res.error) console.error("[Email] Pickup notification failed:", res.error);

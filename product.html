@@ -283,19 +283,17 @@
 
     var shippingTabHtml = '<div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">' + (LANG === "fr" ? "Livraison & Retours" : "Shipping & Returns") + '</button><div class="acc-body"><div class="acc-body-inner">' +
       (LANG === "fr"
-        ? '<ul style="padding-left:0;list-style:none;margin:0;">' +
-          '<li style="padding:4px 0;">📦 <strong>Expédition sous 24-48h</strong> vers 19 pays d\'Europe (France, Benelux, Espagne, Italie, Allemagne, etc.).</li>' +
-          '<li style="padding:4px 0;">📍 <strong>Modes au choix :</strong> Point Relais ou Livraison à domicile avec suivi.</li>' +
-          '<li style="padding:4px 0;">✨ <strong>Livraison offerte</strong> dès 150 € d\'achat.</li>' +
-          '<li style="padding:4px 0;">🏛️ <strong>Retrait gratuit</strong> à notre showroom : 12 Rue Boulard, 75014 Paris.</li>' +
-          '<li style="padding:4px 0;">🔄 <strong>Retours garantis</strong> sous 14 jours.</li>' +
+        ? '<ul style="padding-left:0;list-style:none;margin:0;font-size:14px;line-height:1.7;">' +
+          '<li style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>Expédition sous 24-48h :</strong> préparation soignée vers 19 pays d\'Europe.</li>' +
+          '<li style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>Modes de livraison :</strong> Point Relais ou Livraison à domicile avec suivi.</li>' +
+          '<li style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>Retrait Showroom :</strong> gratuit au 12 Rue Boulard, 75014 Paris.</li>' +
+          '<li style="padding:6px 0;"><strong>Retours :</strong> garantis sous 14 jours après réception.</li>' +
           '</ul>'
-        : '<ul style="padding-left:0;list-style:none;margin:0;">' +
-          '<li style="padding:4px 0;">📦 <strong>Shipped within 24-48h</strong> to 19 European countries (France, Benelux, Spain, Italy, Germany, etc.).</li>' +
-          '<li style="padding:4px 0;">📍 <strong>Delivery options:</strong> Pickup Point or Home delivery with tracking.</li>' +
-          '<li style="padding:4px 0;">✨ <strong>Free shipping</strong> on orders over €150.</li>' +
-          '<li style="padding:4px 0;">🏛️ <strong>Free showroom pickup:</strong> 12 Rue Boulard, 75014 Paris.</li>' +
-          '<li style="padding:4px 0;">🔄 <strong>14-day returns</strong> guaranteed.</li>' +
+        : '<ul style="padding-left:0;list-style:none;margin:0;font-size:14px;line-height:1.7;">' +
+          '<li style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>Dispatched within 24-48h:</strong> careful handling to 19 European countries.</li>' +
+          '<li style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>Delivery methods:</strong> Pickup Point or tracked Home Delivery.</li>' +
+          '<li style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>Showroom pickup:</strong> complimentary at 12 Rue Boulard, 75014 Paris.</li>' +
+          '<li style="padding:6px 0;"><strong>Returns:</strong> guaranteed within 14 days of receipt.</li>' +
           '</ul>'
       ) + '</div></div></div>';
 
