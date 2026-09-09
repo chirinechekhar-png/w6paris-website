@@ -170,13 +170,14 @@ const I18N = {
       freeLabel: "Senteurs offertes"
     },
     config: {
-      intro: "Dévissez le flacon rechargeable et remplissez-le de votre fragrance W6 favorite. Revissez le flacon sur le système de diffusion et réinsérez-le délicatement dans l'appareil. Appuyez sur le bouton d'alimentation pour activer le diffuseur. Utilisez les boutons de commande pour sélectionner l'intensité souhaitée parmi les réglages prédéfinis. Personnalisez les heures de fonctionnement et ajustez l'intensité selon vos préférences pour une expérience olfactive sur mesure.",
+      intro: "Dévissez le flacon rechargeable et remplissez-le de votre fragrance W6 favorite. Revissez le flacon sur le système de diffusion et réinsérez-le délicatement dans l'appareil. Appuyez sur le bouton d'alimentation pour activer le diffuseur. Utilisez les boutons de commande pour sélectionner l'intensité souhaitée parmi les réglages prédéfinis. Connectez le diffuseur directement à votre téléphone en Bluetooth pour personnaliser les heures de fonctionnement et ajuster l'intensité selon vos préférences pour une expérience olfactive sur mesure.",
       steps: [
         "Dévissez le flacon rechargeable et remplissez-le de votre fragrance W6.",
         "Revissez le flacon sur le système de diffusion et réinsérez-le dans l'appareil.",
         "Appuyez sur le bouton d'alimentation pour activer le diffuseur.",
         "Sélectionnez l'intensité souhaitée via les réglages prédéfinis.",
-        "Personnalisez heures de fonctionnement et intensité pour une expérience sur mesure."
+        "Connectez le diffuseur directement à votre téléphone en Bluetooth.",
+        "Personnalisez les heures de fonctionnement et l'intensité pour une expérience sur mesure."
       ]
     },
     footer: {
@@ -234,7 +235,9 @@ const I18N = {
       q7: "Puis-je retourner un produit ?",
       a7: "Oui. Vous disposez de 14 jours après réception pour retourner un produit dans son état d'origine et obtenir un remboursement.",
       q8: "Vers quels pays assurez-vous la livraison ?",
-      a8: "Nous expédions dans 19 pays d'Europe : France métropolitaine, Belgique, Luxembourg, Pays-Bas, Allemagne, Espagne, Italie, Portugal, Pologne, Autriche, Irlande, Danemark, Suède, Finlande, République Tchèque, Slovaquie, Hongrie, Roumanie et Grèce. Vous pouvez choisir entre la livraison en Point Relais ou directement à domicile lors de votre commande. La livraison en Point Relais est offerte en France métropolitaine (et en Belgique, Luxembourg et Pays-Bas sur les fragrances)."
+      a8: "Nous expédions dans 19 pays d'Europe : France métropolitaine, Belgique, Luxembourg, Pays-Bas, Allemagne, Espagne, Italie, Portugal, Pologne, Autriche, Irlande, Danemark, Suède, Finlande, République Tchèque, Slovaquie, Hongrie, Roumanie et Grèce. Vous pouvez choisir entre la livraison en Point Relais ou directement à domicile lors de votre commande. La livraison en Point Relais est offerte en France métropolitaine (et en Belgique, Luxembourg et Pays-Bas sur les fragrances).",
+      q9: "Peut-on connecter le diffuseur directement à son téléphone ?",
+      a9: "Oui. Nos diffuseurs se connectent directement à votre smartphone en Bluetooth, vous permettant de programmer facilement vos heures de diffusion et de régler l'intensité selon vos envies."
     },
     shipping: {
       title: "Livraison",
@@ -427,12 +430,13 @@ const I18N = {
       freeLabel: "Scents included free"
     },
     config: {
-      intro: "Unscrew the refillable bottle and fill it with your favourite W6 fragrance. Screw the bottle back onto the diffusion system and gently reinsert it into the device. Press the power button to activate the diffuser. Use the control buttons to select your desired intensity from the preset settings. Customise operating hours and adjust the intensity according to your preferences for a tailored olfactory experience.",
+      intro: "Unscrew the refillable bottle and fill it with your favourite W6 fragrance. Screw the bottle back onto the diffusion system and gently reinsert it into the device. Press the power button to activate the diffuser. Use the control buttons to select your desired intensity from the preset settings. Connect the diffuser directly to your phone via Bluetooth to customise operating hours and adjust the intensity according to your preferences for a tailored olfactory experience.",
       steps: [
         "Unscrew the refillable bottle and fill it with your favourite W6 fragrance.",
         "Screw the bottle back onto the diffusion system and reinsert it into the device.",
         "Press the power button to activate the diffuser.",
         "Select your desired intensity from the preset settings.",
+        "Connect the diffuser directly to your phone via Bluetooth.",
         "Customise operating hours and intensity for a tailored experience."
       ]
     },
@@ -492,7 +496,9 @@ const I18N = {
       q7: "Can I return a product?",
       a7: "Yes. You have 14 days after receipt to return a product in its original condition and obtain a refund.",
       q8: "Which countries do you deliver to?",
-      a8: "We currently deliver to 19 European countries: Metropolitan France, Belgium, Luxembourg, the Netherlands, Germany, Spain, Italy, Portugal, Poland, Austria, Ireland, Denmark, Sweden, Finland, the Czech Republic, Slovakia, Hungary, Romania, and Greece. You can choose between pickup point delivery or home delivery at checkout. Pickup point delivery is complimentary in France (and in Belgium, Luxembourg, and the Netherlands for fragrances)."
+      a8: "We currently deliver to 19 European countries: Metropolitan France, Belgium, Luxembourg, the Netherlands, Germany, Spain, Italy, Portugal, Poland, Austria, Ireland, Denmark, Sweden, Finland, the Czech Republic, Slovakia, Hungary, Romania, and Greece. You can choose between pickup point delivery or home delivery at checkout. Pickup point delivery is complimentary in France (and in Belgium, Luxembourg, and the Netherlands for fragrances).",
+      q9: "Can the diffuser be connected directly to a phone?",
+      a9: "Yes. Our diffusers connect directly to your smartphone via Bluetooth, allowing you to easily schedule diffusion times and customize intensity to your preferences."
     },
     shipping: {
       title: "Shipping",
