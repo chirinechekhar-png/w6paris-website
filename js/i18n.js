@@ -31,6 +31,8 @@ const I18N = {
       cta2: "Voir les fragrances"
     },
     home: {
+      manifestoEyebrow: "Maison W6 Paris",
+      manifestoText: "Diffuseurs à froid d'exception et fragrances composées à Grasse. Chaque espace mérite une signature olfactive qui lui ressemble.",
       bestTitle: "Nos diffuseurs",
       bestSub: "Une technologie de nébulisation à froid, une ligne épurée, une atmosphère à votre image.",
       oilsTitle: "Nos Fragrances",
@@ -286,6 +288,8 @@ const I18N = {
       cta2: "See the fragrances"
     },
     home: {
+      manifestoEyebrow: "Maison W6 Paris",
+      manifestoText: "Exceptional cold-diffusion diffusers and fragrances composed in Grasse. Every space deserves an olfactory signature of its own.",
       bestTitle: "Our diffusers",
       bestSub: "Heat-free cold nebulization, a sleek silhouette, an atmosphere that reflects you.",
       oilsTitle: "Our Fragrances",
