@@ -204,19 +204,20 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 500; line-height: 1.15;
   height: 100%;
   object-fit: cover;
   pointer-events: none;
+  background: #0f0d0a;
 }
 
-.hero-video video::-webkit-media-controls {
-  display: none !important;
-  opacity: 0 !important;
-}
-
+.hero-video video::-webkit-media-controls,
 .hero-video video::-webkit-media-controls-start-playback-button,
 .hero-video video::-webkit-media-controls-play-button,
+.hero-video video::-webkit-media-controls-overlay-play-button,
+.hero-video video::-webkit-media-controls-panel,
 .hero-video video::-webkit-media-controls-enclosure {
   display: none !important;
   -webkit-appearance: none !important;
   opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .hero-video-shade {

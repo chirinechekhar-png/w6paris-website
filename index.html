@@ -30,31 +30,37 @@
 
   <!-- HERO -->
   <section class="hero-video">
-    <video id="heroVideo" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="images/hero-poster.jpg">
+    <video id="heroVideo" autoplay muted loop playsinline webkit-playsinline x5-playsinline preload="auto">
       <source src="images/hero-video.mp4" type="video/mp4">
     </video>
     <script>
       (function() {
         var v = document.getElementById("heroVideo");
-        if (v) {
-          v.muted = true;
-          v.defaultMuted = true;
-          v.playsInline = true;
+        if (!v) return;
+        v.muted = true;
+        v.defaultMuted = true;
+        v.playsInline = true;
+
+        function start() {
           var p = v.play();
           if (p && typeof p.catch === "function") {
             p.catch(function() {
-              var playOnce = function() {
+              var unlock = function() {
                 v.play();
-                window.removeEventListener("touchstart", playOnce);
-                window.removeEventListener("scroll", playOnce);
-                window.removeEventListener("click", playOnce);
+                ["touchstart", "touchend", "pointerdown", "click", "scroll"].forEach(function(evt) {
+                  window.removeEventListener(evt, unlock);
+                });
               };
-              window.addEventListener("touchstart", playOnce, { passive: true, once: true });
-              window.addEventListener("scroll", playOnce, { passive: true, once: true });
-              window.addEventListener("click", playOnce, { passive: true, once: true });
+              ["touchstart", "touchend", "pointerdown", "click", "scroll"].forEach(function(evt) {
+                window.addEventListener(evt, unlock, { passive: true, once: true });
+              });
             });
           }
         }
+
+        v.addEventListener("loadeddata", start, { once: true });
+        v.addEventListener("canplay", start, { once: true });
+        start();
       })();
     </script>
     <div class="hero-video-shade"></div>
