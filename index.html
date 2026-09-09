@@ -30,9 +30,33 @@
 
   <!-- HERO -->
   <section class="hero-video">
-    <video autoplay muted loop playsinline preload="auto" poster="images/hero.jpg">
+    <video id="heroVideo" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="images/hero-poster.jpg">
       <source src="images/hero-video.mp4" type="video/mp4">
     </video>
+    <script>
+      (function() {
+        var v = document.getElementById("heroVideo");
+        if (v) {
+          v.muted = true;
+          v.defaultMuted = true;
+          v.playsInline = true;
+          var p = v.play();
+          if (p && typeof p.catch === "function") {
+            p.catch(function() {
+              var playOnce = function() {
+                v.play();
+                window.removeEventListener("touchstart", playOnce);
+                window.removeEventListener("scroll", playOnce);
+                window.removeEventListener("click", playOnce);
+              };
+              window.addEventListener("touchstart", playOnce, { passive: true, once: true });
+              window.addEventListener("scroll", playOnce, { passive: true, once: true });
+              window.addEventListener("click", playOnce, { passive: true, once: true });
+            });
+          }
+        }
+      })();
+    </script>
     <div class="hero-video-shade"></div>
     <div class="hero-video-copy fade-in">
       <span class="eyebrow" data-i18n="hero.eyebrow">W6 Paris — Who is Lu6</span>
